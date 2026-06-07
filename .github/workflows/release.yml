@@ -96,14 +96,23 @@ jobs:
       - name: Package Merlin Plugin
         run: |
           # Copy files to a temporary packaging directory
-          mkdir -p dist/vnt/scripts dist/vnt/webs dist/vnt/res
-          cp -rf merlin_plugin/* dist/vnt/
+          mkdir -p dist/vnt/scripts dist/vnt/webs dist/vnt/res dist/vnt/bin
+          cp -rf merlin_plugin/. dist/vnt/
           
           # Clean up any potential backups from temporary packaging dir
           rm -f dist/vnt/scripts/*.bak
           rm -f dist/vnt/webs/*.bak
           
-          # Create architecture-specific binary tarballs for client and server
+          # Bundle the compiled binaries into the plugin folder
+          cp ./downloaded-artifacts/binaries-aarch64-unknown-linux-musl/vnt2_cli dist/vnt/bin/vnt2_cli_aarch64
+          cp ./downloaded-artifacts/binaries-aarch64-unknown-linux-musl/vnt2_ctrl dist/vnt/bin/vnt2_ctrl_aarch64
+          cp ./downloaded-artifacts/binaries-aarch64-unknown-linux-musl/vnts2 dist/vnt/bin/vnts2_aarch64
+          
+          cp ./downloaded-artifacts/binaries-armv7-unknown-linux-musleabihf/vnt2_cli dist/vnt/bin/vnt2_cli_arm
+          cp ./downloaded-artifacts/binaries-armv7-unknown-linux-musleabihf/vnt2_ctrl dist/vnt/bin/vnt2_ctrl_arm
+          cp ./downloaded-artifacts/binaries-armv7-unknown-linux-musleabihf/vnts2 dist/vnt/bin/vnts2_arm
+          
+          # Create architecture-specific binary tarballs for client and server (optional standalone releases)
           mkdir -p binary_releases
           
           # aarch64 client package
@@ -128,7 +137,7 @@ jobs:
           cp ./downloaded-artifacts/binaries-armv7-unknown-linux-musleabihf/vnts2 temp_server_armv7/
           tar -zcvf binary_releases/vnts2-server-armv7.tar.gz -C temp_server_armv7 vnts2
 
-          # Package the main Merlin plugin installation package
+          # Package the main Merlin plugin installation package (now contains bin/)
           cd dist
           tar -zcvf ../vnt-koolshare.tar.gz vnt/
           cd ..

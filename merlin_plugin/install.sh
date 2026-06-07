@@ -21,6 +21,35 @@ fi
 find /koolshare/init.d/ -name "*vnt.sh*"|xargs rm -rf
 cd /tmp
 
+# 判断及安装核心程序二进制
+ARCH=$(uname -m)
+IS_64BIT=0
+if [ "$ARCH" == "aarch64" ]; then
+    chmod +x /tmp/vnt/bin/vnts2_aarch64 >/dev/null 2>&1
+    /tmp/vnt/bin/vnts2_aarch64 --version >/dev/null 2>&1
+    if [ "$?" == "0" ]; then
+        IS_64BIT=1
+    fi
+fi
+
+if [ "$IS_64BIT" == "1" ]; then
+    echo_date "检测到真 64 位用户态架构 (aarch64)，正在安装 64 位核心程序..."
+    cp -rf /tmp/vnt/bin/vnt2_cli_aarch64 /koolshare/bin/vnt2_cli
+    cp -rf /tmp/vnt/bin/vnt2_ctrl_aarch64 /koolshare/bin/vnt2_ctrl
+    cp -rf /tmp/vnt/bin/vnts2_aarch64 /koolshare/bin/vnts2
+    dbus set vnt_arch="aarch64 (64位)"
+else
+    echo_date "检测到 32 位用户态架构 (armv7)，正在安装 32 位核心程序..."
+    cp -rf /tmp/vnt/bin/vnt2_cli_arm /koolshare/bin/vnt2_cli
+    cp -rf /tmp/vnt/bin/vnt2_ctrl_arm /koolshare/bin/vnt2_ctrl
+    cp -rf /tmp/vnt/bin/vnts2_arm /koolshare/bin/vnts2
+    dbus set vnt_arch="armv7 (32位)"
+fi
+
+chmod +x /koolshare/bin/vnt2_cli
+chmod +x /koolshare/bin/vnt2_ctrl
+chmod +x /koolshare/bin/vnts2
+
 cp -rf /tmp/vnt/scripts/* /koolshare/scripts/
 cp -rf /tmp/vnt/webs/* /koolshare/webs/
 cp -rf /tmp/vnt/res/* /koolshare/res/
