@@ -1,6 +1,9 @@
 [workspace]
 members = [
     "vnt",
+    "vnt/vnt-web",
+    "vnt/vnt-ipc",
+    "vnt/vnt-core",
     "vnts"
 ]
 resolver = "2"

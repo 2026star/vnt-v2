@@ -42,8 +42,6 @@ name = "vnt2_web"
 path = "src/main_web.rs"
 required-features = ["vnt-web"]
 
-[workspace]
-members = ["vnt-web", "vnt-ipc", "vnt-core"]
 
 [profile.release]
 opt-level = 'z'
