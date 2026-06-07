@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
@@ -7,7 +7,7 @@
 <meta HTTP-EQUIV="Expires" CONTENT="-1"/>
 <link rel="shortcut icon" href="images/favicon.png"/>
 <link rel="icon" href="images/favicon.png"/>
-<title>软件中心 - VNT 异地组网、内网穿透工具</title>
+<title>软件中心 - VNT2 & VNTS2 异地组网、内网穿透工具</title>
 <link rel="stylesheet" type="text/css" href="index_style.css" />
 <link rel="stylesheet" type="text/css" href="form_style.css" />
 <link rel="stylesheet" type="text/css" href="usp_style.css" />
@@ -142,7 +142,7 @@ var params_input = [
     "vnts_cron_time", "vnts_cron_hour_min", "vnts_cron_type",
     "vnt_token", "vnt_ipmode", "vnt_static_ip", "vnt_desvice_id", "vnt_desvice_name",
     "vnt_localadd", "vnt_peeradd", "vnt_serveraddr", "vnt_stunaddr", "vnt_tun_name",
-    "vnt_relay_enable", "vnt_ipv4_mode", "vnt_port", "vnt_mtu", "vnt_key",
+    "vnt_relay_enable", "vnt_mtu", "vnt_key",
     "vnt_compressor", "vnt_path", "vnt_mapping", "vnt_local_dev",
     "vnts_path",
     "vnts2_token", "vnts2_tcp_bind", "vnts2_quic_bind", "vnts2_ws_bind",
@@ -151,7 +151,7 @@ var params_input = [
     "vnts2_whitelist", "vnts2_server_quic_bind", "vnts2_peer_servers", "vnts2_custom_nets"
 ];
 var params_check = [
-    "vnt_enable", "vnts_enable", "vnt_wg_enable", "vnt_proxy_enable", "vnt_finger_enable",
+    "vnt_enable", "vnts_enable", "vnt_proxy_enable", "vnt_finger_enable",
     "vnt_first_latency_enable", "vnt_fec", "vnt_allow_mapping",
     "vnts2_persistence"
 ];
@@ -293,79 +293,30 @@ function get_vnt_status() {
 
 
 function buildswitch() {
-	$("#vnt_enable").click(
-	function() {
-		if (E('vnt_enable').checked) {
-			document.form.vnt_enable.value = 1;
-		} else {
-			document.form.vnt_enable.value = 0;
-		}
+	$("#vnt_enable").click(function() {
+		document.form.vnt_enable.value = E('vnt_enable').checked ? 1 : 0;
 	});
-	$("#vnts_enable").click(
-	function() {
-		if (E('vnts_enable').checked) {
-			document.form.vnts_enable.value = 1;
-		} else {
-			document.form.vnts_enable.value = 0;
-		}
+	$("#vnts_enable").click(function() {
+		document.form.vnts_enable.value = E('vnts_enable').checked ? 1 : 0;
 	});
-        $("#vnt_wg_enable").click(
-	function() {
-		if (E('vnt_wg_enable').checked) {
-			document.form.vnt_wg_enable.value = 1;
-		} else {
-			document.form.vnt_wg_enable.value = 0;
-		}
+	$("#vnt_proxy_enable").click(function() {
+		document.form.vnt_proxy_enable.value = E('vnt_proxy_enable').checked ? 1 : 0;
 	});
-	$("#vnt_proxy_enable").click(
-	function() {
-		if (E('vnt_proxy_enable').checked) {
-			document.form.vnt_proxy_enable.value = 1;
-		} else {
-			document.form.vnt_proxy_enable.value = 0;
-		}
+	$("#vnt_finger_enable").click(function() {
+		document.form.vnt_finger_enable.value = E('vnt_finger_enable').checked ? 1 : 0;
 	});
-	$("#vnt_W_enable").click(
-	function() {
-		if (E('vnt_W_enable').checked) {
-			document.form.vnt_W_enable.value = 1;
-		} else {
-			document.form.vnt_W_enable.value = 0;
-		}
+	$("#vnt_first_latency_enable").click(function() {
+		document.form.vnt_first_latency_enable.value = E('vnt_first_latency_enable').checked ? 1 : 0;
 	});
-	$("#vnt_finger_enable").click(
-	function() {
-		if (E('vnt_finger_enable').checked) {
-			document.form.vnt_finger_enable.value = 1;
-		} else {
-			document.form.vnt_finger_enable.value = 0;
-		}
+	$("#vnt_fec").click(function() {
+		document.form.vnt_fec.value = E('vnt_fec').checked ? 1 : 0;
 	});
-	$("#vnt_first_latency_enable").click(
-	function() {
-		if (E('vnt_first_latency_enable').checked) {
-			document.form.vnt_first_latency_enable.value = 1;
-		} else {
-			document.form.vnt_first_latency_enable.value = 0;
-		}
+	$("#vnt_allow_mapping").click(function() {
+		document.form.vnt_allow_mapping.value = E('vnt_allow_mapping').checked ? 1 : 0;
 	});
-	$("#vnts_finger_enable").click(
-	function() {
-		if (E('vnts_finger_enable').checked) {
-			document.form.vnts_finger_enable.value = 1;
-		} else {
-			document.form.vnts_finger_enable.value = 0;
-		}
+	$("#vnts2_persistence").click(function() {
+		document.form.vnts2_persistence.value = E('vnts2_persistence').checked ? 1 : 0;
 	});
-        $("#vnts_web_wan").click(
-	function() {
-		if (E('vnts_web_wan').checked) {
-			document.form.vnts_web_wan.value = 1;
-		} else {
-			document.form.vnts_web_wan.value = 0;
-		}
-	});
-
 }
 function openWebInterface() {
     var web_bind = document.getElementById('vnts2_web_bind').value || "0.0.0.0:29871";
@@ -374,69 +325,58 @@ function openWebInterface() {
     window.open(webUiHref, '_blank');
 }
 function save() {
-		if (trim(E("vnt_enable").value) == "1" && trim(E("vnt_token").value) == "") {
-			alert("客户端token未填写!");
+	if (E("vnt_enable") && E("vnt_enable").checked) {
+		if (trim(E("vnt_token").value) == "") {
+			alert("客户端Token为必填项!");
 			return false;
 		}
-                                       if (trim(E("vnts_enable").value) == "1" && trim(E("vnts_web_enable").value) == "1" && trim(E("vnts_web_port").value) == "") {
-			alert("服务端WEB管理端口未填写!");
+	}
+	if (E("vnt_cron_time") && trim(E("vnt_cron_time").value) == "") {
+		alert("客户端定时功能不能为空! 不使用请填0");
+		return false;
+	}
+	if (E("vnts_cron_time") && trim(E("vnts_cron_time").value) == "") {
+		alert("服务端定时功能不能为空! 不使用请填0");
+		return false;
+	}
+	if (E("vnt_enable") && E("vnt_enable").checked && E("vnt_ipmode") && E("vnt_ipmode").value == "static") {
+		if (E("vnt_static_ip") && trim(E("vnt_static_ip").value) == "") {
+			alert("选择静态指定IP，必须填写分配的虚拟IP地址！");
 			return false;
 		}
-		if (trim(E("vnt_cron_time").value) == "") {
-			alert("客户端定时功能不能为空!不使用请填0");
-			return false;
-		}
-		if (trim(E("vnts_cron_time").value) == "") {
-			alert("服务端定时功能不能为空!不使用请填0");
-			return false;
-		}
-		if (trim(E("vnt_enable").value) == "1" && trim(E("vnt_ipmode").value) == "static" && trim(E("vnt_static_ip").value) == "") {
-			alert("选择静态分配IP，必须填写分配的虚拟IP地址！");
-			return false;
-		}
-		if (trim(E("vnts_enable").value) == "1" && trim(E("vnts_port").value) == "") {
-			alert("服务端监听端口未填写!");
-			return false;
-		}
-		if(E("vnt_cron_time").value == "0"){
-		    E("vnt_cron_hour_min").value = "";
-		    E("vnt_cron_type").value = "";
-		}
-		if(E("vnts_cron_time").value == "0"){
-		    E("vnts_cron_hour_min").value = "";
-		    E("vnts_cron_type").value = "";
-		}
-		//清空隐藏表单的值
-		if(E("vnt_ipmode").value == "dhcp"){
-            E("vnt_static_ip").value = "";
-		}
-	        if(E("vnt_passmode").value == "off"){
-            E("vnt_key").value = "";
-		}
-                if(E("vnts_enable").value == "0"){
-            E("vnts_web_enable").value = "0";
-		}
-                   if(E("vnts_web_enable").value == "0"){
-            E("vnts_web_port").value = "";
-            E("vnts_web_user").value = "";
-            E("vnts_web_pass").value = "";
-            E("vnts_web_wan").value = "0";
-		}
+	}
+
+	if (E("vnt_cron_time") && E("vnt_cron_time").value == "0") {
+		if (E("vnt_cron_hour_min")) E("vnt_cron_hour_min").value = "";
+		if (E("vnt_cron_type")) E("vnt_cron_type").value = "";
+	}
+	if (E("vnts_cron_time") && E("vnts_cron_time").value == "0") {
+		if (E("vnts_cron_hour_min")) E("vnts_cron_hour_min").value = "";
+		if (E("vnts_cron_type")) E("vnts_cron_type").value = "";
+	}
+	if (E("vnt_ipmode") && E("vnt_ipmode").value == "dhcp") {
+		if (E("vnt_static_ip")) E("vnt_static_ip").value = "";
+	}
+
 	showLoading(3);
 
-	//input
+	// input
 	for (var i = 0; i < params_input.length; i++) {
-		if (trim(E(params_input[i]).value) && trim(E(params_input[i]).value) != db_vnt[params_input[i]]) {
-			db_vnt[params_input[i]] = trim(E(params_input[i]).value);
-		}else if (!trim(E(params_input[i]).value) && db_vnt[params_input[i]]) {
-			db_vnt[params_input[i]] = "";
-            }
+		var el = E(params_input[i]);
+		if (el) {
+			if (trim(el.value) && trim(el.value) != db_vnt[params_input[i]]) {
+				db_vnt[params_input[i]] = trim(el.value);
+			} else if (!trim(el.value) && db_vnt[params_input[i]]) {
+				db_vnt[params_input[i]] = "";
+			}
+		}
 	}
 	// checkbox
 	for (var i = 0; i < params_check.length; i++) {
-        if (E(params_check[i]).checked != db_vnt[params_check[i]]){
-            db_vnt[params_check[i]] = E(params_check[i]).checked ? '1' : '0';
-        }
+		var el = E(params_check[i]);
+		if (el) {
+			db_vnt[params_check[i]] = el.checked ? '1' : '0';
+		}
 	}
 	
 	// post data
@@ -771,6 +711,14 @@ function toggle_func() {
 		    E("static_ip").style.display = "none";
 		}
 	});
+
+	$("#vnts2_web_bind").on("input", function() {
+		if (E("vnts2_web_bind") && E("vnts2_web_bind").value != "") {
+			$("#open_web_btn").show();
+		} else {
+			$("#open_web_btn").hide();
+		}
+	});
 }
 
 //网页重载时更新显示样式
@@ -779,6 +727,11 @@ function update_visibility(){
 		if (E("static_ip")) E("static_ip").style.display = "";
 	}else{
 		if (E("static_ip")) E("static_ip").style.display = "none";
+	}
+	if (db_vnt["vnts2_web_bind"] && db_vnt["vnts2_web_bind"] != "") {
+		if (E("open_web_btn")) E("open_web_btn").style.display = "";
+	} else {
+		if (E("open_web_btn")) E("open_web_btn").style.display = "none";
 	}
 }
 document.addEventListener('DOMContentLoaded', function() {
@@ -1101,7 +1054,6 @@ function upload_bin() {
         processData: false,
         contentType: false,
         success: function(response) {
-            // 上传成功后的处理
             var vntbin = {
                 "vnt_name": filename,
             };
@@ -1109,8 +1061,7 @@ function upload_bin() {
             install_now(vntbin);
         },
         error: function(xhr, status, error) {
-            // 上传失败后的处理
-            alert("上传失败: " + error);
+            alert("涓婁紶澶辫触: " + error);
         }
     });
 }
@@ -1154,7 +1105,6 @@ function get_installog(s) {
 				noChange = 0;
 			}
 			if (noChange > 4000) {
-				//tabSelect("app1");
 				return false;
 			} else {
 				setTimeout("get_installog(1);", 1000);
@@ -1165,7 +1115,7 @@ function get_installog(s) {
 		},
 		error: function(xhr, status, error) {
 			if (s) {
-				E("soft_log_area").value = "没有找到上传记录";
+				E("soft_log_area").value = "娌℃湁鎵惧埌涓婁紶璁板綍";
 			}
 		}
 	});
@@ -1203,17 +1153,17 @@ function get_installog(s) {
                             <tr>
                                 <td bgcolor="#4D595D" colspan="3" valign="top">
                                     <div>&nbsp;</div>
-                                    <div style="float:left;" class="formfonttitle">VNT  异地组网、内网穿透工具</div>
-                                    <div style="float:right; width:15px; height:25px;margin-top:10px"><img id="return_btn" onclick="reload_Soft_Center();" align="right" style="cursor:pointer;position:absolute;margin-left:-30px;margin-top:-25px;" title="返回软件中心" src="/images/backprev.png" onMouseOver="this.src='/images/backprevclick.png'" onMouseOut="this.src='/images/backprev.png'"></img></div>
+                                    <div style="float:left;" class="formfonttitle">VNT  寮傚湴缁勭綉銆佸唴缃戠┛閫忓伐鍏?/div>
+                                    <div style="float:right; width:15px; height:25px;margin-top:10px"><img id="return_btn" onclick="reload_Soft_Center();" align="right" style="cursor:pointer;position:absolute;margin-left:-30px;margin-top:-25px;" title="杩斿洖杞欢涓績" src="/images/backprev.png" onMouseOver="this.src='/images/backprevclick.png'" onMouseOut="this.src='/images/backprev.png'"></img></div>
                                     <div style="margin:30px 0 10px 5px;" class="splitLine"></div>
-                                    <div class="formfontdesc">VNT 是一个简便高效的异地组网、内网穿透工具。【仓库链接：<a href="https://github.com/vnt-dev/vnt" target="_blank"><em><u>Github</u></em></a>】【使用文档：<a href="https://rustvnt.com" target="_blank"><em><u>官网</u></em></a>&nbsp;&nbsp;<a href="https://github.com/vnt-dev/vnt/blob/main/vnt-cli/README.md" target="_blank"><em><u>客户端</u></em></a>&nbsp;&nbsp;<a href="https://github.com/vnt-dev/vnts?tab=readme-ov-file#vnts" target="_blank"><em><u>服务端</u></em></a>】【安卓端GUI：<a href="https://github.com/vnt-dev/VntApp" target="_blank"><em><u>VntApp</u></em></a>】【QQ群：<a href="http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=o3Rr9xUWwAAnV9TkU_Nyj3yHNLs9k5F5&authKey=l1FKvqk7%2F256SK%2FHrw0PUhs%2Bar%2BtKYx0pLb7aiwBN9%2BKBCY8sOzWWEqtl4pdXAT7&noverify=0&group_code=1034868233" target="_blank"><em><u>vnt组网交流群</u></em></a>】<br/><i>  点击下方参数设置的文字，可查看帮助信息  </i></div>
+                                    <div class="formfontdesc">VNT 鏄竴涓畝渚块珮鏁堢殑寮傚湴缁勭綉銆佸唴缃戠┛閫忓伐鍏枫€傘€愪粨搴撻摼鎺ワ細<a href="https://github.com/vnt-dev/vnt" target="_blank"><em><u>Github</u></em></a>銆戙€愪娇鐢ㄦ枃妗ｏ細<a href="https://rustvnt.com" target="_blank"><em><u>瀹樼綉</u></em></a>&nbsp;&nbsp;<a href="https://github.com/vnt-dev/vnt/blob/main/vnt-cli/README.md" target="_blank"><em><u>瀹㈡埛绔?/u></em></a>&nbsp;&nbsp;<a href="https://github.com/vnt-dev/vnts?tab=readme-ov-file#vnts" target="_blank"><em><u>鏈嶅姟绔?/u></em></a>銆戙€愬畨鍗撶GUI锛?a href="https://github.com/vnt-dev/VntApp" target="_blank"><em><u>VntApp</u></em></a>銆戙€怮Q缇わ細<a href="http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=o3Rr9xUWwAAnV9TkU_Nyj3yHNLs9k5F5&authKey=l1FKvqk7%2F256SK%2FHrw0PUhs%2Bar%2BtKYx0pLb7aiwBN9%2BKBCY8sOzWWEqtl4pdXAT7&noverify=0&group_code=1034868233" target="_blank"><em><u>vnt缁勭綉浜ゆ祦缇?/u></em></a>銆?br/><i>  鐐瑰嚮涓嬫柟鍙傛暟璁剧疆鐨勬枃瀛楋紝鍙煡鐪嬪府鍔╀俊鎭? </i></div>
                                     <div id="tablet_show">
                                         <table style="margin:10px 0px 0px 0px;border-collapse:collapse" width="100%" height="37px">
                                             <tr width="235px">
                                              <td colspan="4" cellpadding="0" cellspacing="0" style="padding:0" border="1" bordercolor="#000">
-                                               <input id="show_btn1" class="show-btn1" style="cursor:pointer" type="button" value="客户端"/>
-                                               <input id="show_btn2" class="show-btn2" style="cursor:pointer" type="button" value="服务端"/>
-											   <input id="show_btn3" class="show-btn3" style="cursor:pointer" type="button" value="上传程序"/>
+                                               <input id="show_btn1" class="show-btn1" style="cursor:pointer" type="button" value="瀹㈡埛绔?/>
+                                               <input id="show_btn2" class="show-btn2" style="cursor:pointer" type="button" value="鏈嶅姟绔?/>
+                                               <input id="show_btn3" class="show-btn3" style="cursor:pointer" type="button" value="涓婁紶绋嬪簭"/>
                                              </td>
                                              </tr>
                                         </table>
@@ -1223,12 +1173,12 @@ function get_installog(s) {
                                     <table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#6b8fa3" class="FormTable" style="box-shadow: 3px 3px 10px #000;margin-top: 0px;">
                                         <thead>
                                             <tr>
-                                            <td colspan="2"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(23)">vnt-cli 客户端设置</a></td>
+                                            <td colspan="2"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(23)">vnt2_cli 瀹㈡埛绔缃?/a></td>
                                             </tr>
                                         </thead>
-										 <tr id="vnt-cli">
+                                         <tr id="vnt-cli">
                                             <th>
-                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(0)">开启客户端</a></label>
+                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(0)">寮€鍚鎴风</a></label>
                                             </th>
                                             <td colspan="2">
                                                 <div class="switch_field" style="display:table-cell;float: left;">
@@ -1242,201 +1192,92 @@ function get_installog(s) {
                                                         </div>
                                                     </label>
                                                 </div>
-												<div>
-            <button id="vnt_action_btn" class="vnt_custom_btn"></button>
-        </div>
+                                                <div>
+                                                    <button id="vnt_action_btn" class="vnt_custom_btn"></button>
+                                                </div>
                                             </td>
                                         </tr>
                                         <tr id="vnt_status">
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(4)">运行状态</th>
-                                            <td><span id="status1">获取中...</span>
-                                            </td>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(4)">杩愯鐘舵€?/th>
+                                            <td><span id="status1">鑾峰彇涓?..</span></td>
                                         </tr>
-                                       
                                         <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(17)">定时功能(<i>0为关闭</i>)</a></th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(17)">瀹氭椂鍔熻兘(<i>0涓哄叧闂?/i>)</a></th>
                                             <td>
-                                                每 <input type="text" oninput="this.value=this.value.replace(/[^\d]/g, '')" id="vnt_cron_time" name="vnt_cron_time" class="input_3_table" maxlength="2" value="0" placeholder="" />
+                                                姣?<input type="text" oninput="this.value=this.value.replace(/[^\d]/g, '')" id="vnt_cron_time" name="vnt_cron_time" class="input_3_table" maxlength="2" value="0" placeholder="" />
                                                 <select id="vnt_cron_hour_min" name="vnt_cron_hour_min" style="width:60px;margin:3px 2px 0px 2px;" class="input_option">
-                                                    <option value="min">分钟</option>
-                                                    <option value="hour">小时</option>
+                                                    <option value="min">鍒嗛挓</option>
+                                                    <option value="hour">灏忔椂</option>
                                                 </select> 
-                                                    <select id="vnt_cron_type" name="vnt_cron_type" style="width:60px;margin:3px 2px 0px 2px;" class="input_option">
-                                                        <option value="watch">检查</option>
-                                                        <option value="start">重启</option>
-                                                    </select> 一次服务
-                                            </td>
+                                                <select id="vnt_cron_type" name="vnt_cron_type" style="width:60px;margin:3px 2px 0px 2px;" class="input_option">
+                                                    <option value="watch">妫€鏌?/option>
+                                                    <option value="start">閲嶅惎</option>
+                                                </select> 涓€娆℃湇鍔?                                            </td>
                                         </tr>
-
                                         <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(30)">设备信息和日志</th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(30)">璁惧淇℃伅鍜屾棩蹇?/th>
                                             <td>
-                                                <a type="button" class="info_btn" style="cursor:pointer" href="javascript:void(0);" onclick="open_conf('vnt_info');" >当前设备信息</a>&nbsp;
-												<a type="button" class="info_btn" style="cursor:pointer" href="javascript:void(0);" onclick="open_conf('vnt_all');" >所有设备信息</a>&nbsp;
-												<a type="button" class="info_btn" style="cursor:pointer" href="javascript:void(0);" onclick="open_conf('vnt_list');" >所有设备列表</a><br><br>
-												<a type="button" class="info_btn" style="cursor:pointer" href="javascript:void(0);" onclick="open_conf('vnt_route');" >路由转发信息</a>&nbsp;
-												<a type="button" class="info_btn" style="cursor:pointer" href="javascript:void(0);" onclick="open_conf('vnt_cmd');" >状态参数信息</a>&nbsp;
-                                                <a type="button" class="info_btn" style="cursor:pointer" href="javascript:void(0);" onclick="open_conf('vnt_log');" >程序运行日志</a>
+                                                <a type="button" class="info_btn" style="cursor:pointer" href="javascript:void(0);" onclick="open_conf('vnt_info');" >褰撳墠璁惧淇℃伅</a>&nbsp;
+                                                <a type="button" class="info_btn" style="cursor:pointer" href="javascript:void(0);" onclick="open_conf('vnt_all');" >鎵€鏈夎澶囦俊鎭?/a>&nbsp;
+                                                <a type="button" class="info_btn" style="cursor:pointer" href="javascript:void(0);" onclick="open_conf('vnt_list');" >鎵€鏈夎澶囧垪琛?/a><br><br>
+                                                <a type="button" class="info_btn" style="cursor:pointer" href="javascript:void(0);" onclick="open_conf('vnt_route');" >璺敱杞彂淇℃伅</a>&nbsp;
+                                                <a type="button" class="info_btn" style="cursor:pointer" href="javascript:void(0);" onclick="open_conf('vnt_cmd');" >鐘舵€佸弬鏁颁俊鎭?/a>&nbsp;
+                                                <a type="button" class="info_btn" style="cursor:pointer" href="javascript:void(0);" onclick="open_conf('vnt_log');" >绋嬪簭杩愯鏃ュ織</a>
                                             </td>
                                         </tr>
-										<tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(3)">token</a></th>
+                                        <tr>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(3)">铏氭嫙缃戠粶 Token (network_code)</a></th>
                                             <td>
-                                                <input type="password" name="vnt_token" id="vnt_token" class="input_ss_table" autocomplete="new-password" autocorrect="off" autocapitalize="off" maxlength="64" value="" onBlur="switchType(this, false);" onFocus="switchType(this, true);" placeholder="必填" />
+                                                <input type="password" name="vnt_token" id="vnt_token" class="input_ss_table" autocomplete="new-password" autocorrect="off" autocapitalize="off" maxlength="64" value="" onBlur="switchType(this, false);" onFocus="switchType(this, true);" placeholder="蹇呭～锛岃櫄鎷熺綉缁?Token" />
                                             </td>
                                         </tr>
-										<tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(6)">接口模式</a></th>
+                                        <tr>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(1)">鏈嶅姟鍣ㄥ湴鍧€ (server)</a></th>
+                                            <td>
+                                                <textarea type="text" class="input_ss_table" value="" id="vnt_serveraddr" name="vnt_serveraddr" placeholder="渚嬪: tcp://vnt.wherewego.top:29872銆傚涓湴鍧€浠ヨ嫳鏂囬€楀彿 ','銆?|' 鎴栨崲琛屽垎闅? style="height: 50px; font-family:'Courier New', Courier, mono; font-size: 11px;"></textarea>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(6)">鎺ュ彛妯″紡</a></th>
                                             <td>
                                                 <select id="vnt_ipmode" name="vnt_ipmode" style="width:165px;margin:0px 0px 0px 2px;" value="dhcp" class="input_option" >
-                                                    <option value="dhcp">动态分配</option>
-                                                    <option value="static">静态指定</option>
+                                                    <option value="dhcp">鍔ㄦ€佸垎閰?(DHCP)</option>
+                                                    <option value="static">闈欐€佹寚瀹?(Static)</option>
                                                 </select>
                                             </td>
                                         </tr>
                                         <tr id="static_ip" style="display: none;">
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(7)">指定虚拟IP</a></th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(7)">鎸囧畾铏氭嫙 IP (ip)</a></th>
                                             <td>
-                                                <input type="text" class="input_ss_table" value="" id="vnt_static_ip" name="vnt_static_ip" value="" placeholder="必填，请输入有效的IP地址！"/>
-                                            </td>
-                                        </tr>
-										<tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(8)">设备ID</a></th>
-                                            <td>
-                                                <input type="text" class="input_ss_table" value="" id="vnt_desvice_id" name="vnt_desvice_id" value="" placeholder="建议和虚拟ip地址填写一致"/>
-                                            </td>
-                                        </tr>
-										<tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(9)">设备名称</a></th>
-                                            <td>
-                                                <input type="text" class="input_ss_table" value="" id="vnt_desvice_name" name="vnt_desvice_name" value="" placeholder="KoolShare_梅林"/>
-                                            </td>
-                                        </tr>
-										<tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(10)">本地网段(<i>多个以 | 隔开</i>)</a></th>
-                                            <td>
-                                                <textarea  type="text" class="input_ss_table" value="" id="vnt_localadd" name="vnt_localadd"  value="" placeholder="192.168.50.0/24"></textarea>
-                                            </td>
-                                        </tr>
-										<tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(11)">对端网段(<i>多个以 | 隔开</i>)</a></th>
-                                            <td>
-                                                <textarea  type="text" class="input_ss_table" value="" id="vnt_peeradd" name="vnt_peeradd"  value="" placeholder="192.168.123.0/24,10.26.0.123"></textarea>
+                                                <input type="text" class="input_ss_table" value="" id="vnt_static_ip" name="vnt_static_ip" placeholder="閫夋嫨闈欐€佹寚瀹氭椂蹇呭～锛岃杈撳叆鏈夋晥鐨処P鍦板潃锛?/>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(1)">服务器地址</a></th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(8)">纭欢璁惧 ID (device_id)</a></th>
                                             <td>
-                                                <input type="text" class="input_ss_table" value="" id="vnt_serveraddr" name="vnt_serveraddr" maxlength="100" value="" placeholder="tcp://vnt.wherewego.top:29872"/>
-                                            </td>
-                                        </tr>
-										<tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(2)">STUN服务地址(<i>多个以 | 隔开</i>)</a></th>
-                                            <td>
-                                                <textarea  type="text" class="input_ss_table" value="" id="vnt_stunaddr" name="vnt_stunaddr"  value="" placeholder="stun.qq.com:3478"></textarea>
-                                            </td>
-                                        </tr>
-					<tr>
-					<th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(28)">网卡名称</a></th>
-					<td>
-					<input type="text" class="input_ss_table" value="" id="vnt_tun_name" name="vnt_tun_name" value="" placeholder="vnt-tun" />
-					</td>
-					</tr>
-                                        <tr>
-					<th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(26)">连接模式</a></th>
-					<td>
-					<select id="vnt_relay_enable" name="vnt_relay_enable" style="width:165px;margin:0px 0px 0px 2px;" value="all" class="input_option">
-					<option value="all">自动</option>
-					<option value="relay">转发</option>
-					<option value="p2p">P2P</option>
-					</select>
-					</td>
-					</tr>
-										<tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(14)">IPV4/IPV6</a></th>
-                                            <td>
-                                                <select id="vnt_ipv4_mode" name="vnt_ipv4_mode" style="width:165px;margin:0px 0px 0px 2px;" value="auto" class="input_option" >
-                                                    <option value="auto">V4-V6都使用</option>
-						    <option value="ipv4">只使用IPV4</option>
-                                                    <option value="ipv6">只使用IPV6</option>
-						    <option value="ipv4-tcp">只使用IPV4-tcp</option>
-                                                    <option value="ipv6-tcp">只使用IPV6-tcp</option>
-						    <option value="ipv4-udp">只使用IPV4-udp</option>
-                                                    <option value="ipv6-udp">只使用IPV6-udp</option>
-                                                </select>
+                                                <input type="text" class="input_ss_table" value="" id="vnt_desvice_id" name="vnt_desvice_id" placeholder="閫夊～锛屽缓璁拰铏氭嫙IP鍦板潃濉啓涓€鑷? />
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(15)">监听端口</a></th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(9)">璁惧鍒悕 (device_name)</a></th>
                                             <td>
-                                        <input type="text" oninput="this.value=this.value.replace(/[^\d]/g, ''); if(value>65535)value=65535" class="input_ss_table" id="vnt_port" name="vnt_port" maxlength="6" value="" placeholder="0,0" />
+                                                <input type="text" class="input_ss_table" value="" id="vnt_desvice_name" name="vnt_desvice_name" placeholder="閫夊～锛岃澶囧埆鍚嶏紝渚嬪: Merlin_Router" />
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(16)">MTU</a></th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(20)">鏁版嵁鍔犲瘑瀵嗙爜 (password)</a></th>
                                             <td>
-                                        <input type="text" oninput="this.value=this.value.replace(/[^\d]/g, '')" class="input_ss_table" id="vnt_mtu" name="vnt_mtu" value="" placeholder="1300" />
-                                            </td>
-                                        </tr>
-										<tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(19)">加密模式</a></th>
-                                            <td>
-                                                <select id="vnt_passmode" name="vnt_passmode" style="width:165px;margin:0px 0px 0px 2px;" value="off" class="input_option" >
-                                                    <option value="off">不加密</option>
-                                                    <option value="aes_ecb">aes_ecb</option>
-						    <option value="sm4_cbc">sm4_cbc</option>
-						    <option value="aes_cbc">aes_cbc</option>
-						    <option value="aes_gcm">aes_gcm</option>
-						    <option value="chacha20_poly1305">chacha20_poly1305</option>
-						    <option value="chacha20">chacha20</option>
-						    <option value="xor">xor</option>
-                                                </select>
-                                            </td>
-                                        </tr>
-                                        <tr id="vnt_keys" style="display: none;">
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(20)">加密密钥</a></th>
-                                            <td>
-                                                <input type="password" name="vnt_key" id="vnt_key" class="input_ss_table" autocomplete="new-password" autocorrect="off" autocapitalize="off" value="" onBlur="switchType(this, false);" onFocus="switchType(this, true);" placeholder="" />
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(42)">启用压缩</a></th>
-                                            <td>
-                                                <select id="vnt_compressor" name="vnt_compressor" style="width:165px;margin:0px 0px 0px 2px;" value="off" class="input_option" >
-                                                    <option value="off">关闭</option>
-                                                    <option value="lz4">lz4压缩</option>
-						    <option value="zstd">zstd压缩</option>
-                                                </select>
-                                            </td>
-                                        </tr>
-										<tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(21)">自定义程序路径</a></th>
-                                            <td>
-                                                <input type="text"  class="input_ss_table" id="vnt_path" name="vnt_path" maxlength="500" value="" placeholder="必填，例如/koolshare/bin/vnt-cli"/>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(41)">端口映射(<i>多个以 | 隔开</i>)</a></th>
-                                            <td>
-                                                <textarea  type="text" class="input_ss_table" value="" id="vnt_mapping" name="vnt_mapping"  value="" placeholder="tcp:0.0.0.0:80->10.26.0.10:80"></textarea>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(13)">指定出口网卡</a></th>
-                                            <td>
-                                                <select class="input_ss_table" id="vnt_local_dev" name="vnt_local_dev">
-                                                <option value="">不绑定</option> <!-- 添加空白选项 -->
-                                                </select>
+                                                <input type="password" name="vnt_key" id="vnt_key" class="input_ss_table" autocomplete="new-password" autocorrect="off" autocapitalize="off" value="" onBlur="switchType(this, false);" onFocus="switchType(this, true);" placeholder="閫夊～锛岀鍒扮鍔犲瘑瀵嗙爜锛岀暀绌哄垯涓嶅紑鍚姞瀵? />
                                             </td>
                                         </tr>
                                         <tr>
                                             <th>
-                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(12)">允许接入WireGuard</a></label>
+                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(27)">寮€鍚紭鍖栦紶杈?(rtx)</a></label>
                                             </th>
                                             <td colspan="2">
                                                 <div class="switch_field" style="display:table-cell;float: left;">
-                                                    <label for="vnt_wg_enable">
-                                                        <input id="vnt_wg_enable" class="switch" type="checkbox" style="display: none;">
+                                                    <label for="vnt_first_latency_enable">
+                                                        <input id="vnt_first_latency_enable" class="switch" type="checkbox" style="display: none;">
                                                         <div class="switch_container" >
                                                             <div class="switch_bar"></div>
                                                             <div class="switch_circle transition_style">
@@ -1447,9 +1288,84 @@ function get_installog(s) {
                                                 </div>
                                             </td>
                                         </tr>
-										<tr>
+                                        <tr>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(42)">寮€鍚?LZ4 鏁版嵁鍘嬬缉 (compress)</a></th>
+                                            <td>
+                                                <select id="vnt_compressor" name="vnt_compressor" style="width:165px;margin:0px 0px 0px 2px;" value="off" class="input_option" >
+                                                    <option value="off">鍏抽棴</option>
+                                                    <option value="lz4">寮€鍚?LZ4 鍘嬬缉</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <th>
-                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(22)">开启IP转发</a></label>
+                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(12)">寮€鍚墠鍚戠籂閿?(fec)</a></label>
+                                            </th>
+                                            <td colspan="2">
+                                                <div class="switch_field" style="display:table-cell;float: left;">
+                                                    <label for="vnt_fec">
+                                                        <input id="vnt_fec" class="switch" type="checkbox" style="display: none;">
+                                                        <div class="switch_container" >
+                                                            <div class="switch_bar"></div>
+                                                            <div class="switch_circle transition_style">
+                                                                <div></div>
+                                                            </div>
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>
+                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(22)">鍏佽鏈妭鐐逛綔涓烘槧灏勫嚭鍙?(allow_mapping)</a></label>
+                                            </th>
+                                            <td colspan="2">
+                                                <div class="switch_field" style="display:table-cell;float: left;">
+                                                    <label for="vnt_allow_mapping">
+                                                        <input id="vnt_allow_mapping" class="switch" type="checkbox" style="display: none;">
+                                                        <div class="switch_container" >
+                                                            <div class="switch_bar"></div>
+                                                            <div class="switch_circle transition_style">
+                                                                <div></div>
+                                                            </div>
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(28)">铏氭嫙缃戝崱鍚嶇О (tun_name)</a></th>
+                                            <td>
+                                                <input type="text" class="input_ss_table" value="" id="vnt_tun_name" name="vnt_tun_name" placeholder="榛樿: vnt-tun" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(16)">鏈€澶т紶杈撳崟鍏?(MTU)</a></th>
+                                            <td>
+                                                <input type="text" oninput="this.value=this.value.replace(/[^\d]/g, '')" class="input_ss_table" id="vnt_mtu" name="vnt_mtu" placeholder="榛樿鑷姩" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>
+                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(25)">璇佷功鎸囩汗瀹夊叏鏍￠獙 (cert_mode)</a></label>
+                                            </th>
+                                            <td colspan="2">
+                                                <div class="switch_field" style="display:table-cell;float: left;">
+                                                    <label for="vnt_finger_enable">
+                                                        <input id="vnt_finger_enable" class="switch" type="checkbox" style="display: none;">
+                                                        <div class="switch_container" >
+                                                            <div class="switch_bar"></div>
+                                                            <div class="switch_circle transition_style">
+                                                                <div></div>
+                                                            </div>
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>
+                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(22)">寮€鍚?IP 杞彂 (no_nat)</a></label>
                                             </th>
                                             <td colspan="2">
                                                 <div class="switch_field" style="display:table-cell;float: left;">
@@ -1466,71 +1382,59 @@ function get_installog(s) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th>
-                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(24)">开启客户端服务端加密</a></label>
-                                            </th>
-                                            <td colspan="2">
-                                                <div class="switch_field" style="display:table-cell;float: left;">
-                                                    <label for="vnt_W_enable">
-                                                        <input id="vnt_W_enable" class="switch" type="checkbox" style="display: none;">
-                                                        <div class="switch_container" >
-                                                            <div class="switch_bar"></div>
-                                                            <div class="switch_circle transition_style">
-                                                                <div></div>
-                                                            </div>
-                                                        </div>
-                                                    </label>
-                                                </div>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(26)">杩炴帴妯″紡 (no_punch)</a></th>
+                                            <td>
+                                                <select id="vnt_relay_enable" name="vnt_relay_enable" style="width:165px;margin:0px 0px 0px 2px;" value="all" class="input_option">
+                                                    <option value="all">鑷姩鎵撴礊 (P2P)</option>
+                                                    <option value="relay">浠呴檺杞彂 (Relay)</option>
+                                                </select>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th>
-                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(25)">开启数据指纹校验</a></label>
-                                            </th>
-                                            <td colspan="2">
-                                                <div class="switch_field" style="display:table-cell;float: left;">
-                                                    <label for="vnt_finger_enable">
-                                                        <input id="vnt_finger_enable" class="switch" type="checkbox" style="display: none;">
-                                                        <div class="switch_container" >
-                                                            <div class="switch_bar"></div>
-                                                            <div class="switch_circle transition_style">
-                                                                <div></div>
-                                                            </div>
-                                                        </div>
-                                                    </label>
-                                                </div>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(41)">鏈湴绔彛鏄犲皠 (port_mapping)</a></th>
+                                            <td>
+                                                <textarea type="text" class="input_ss_table" id="vnt_mapping" name="vnt_mapping" placeholder="閫夊～锛屾牸寮忎緥濡? tcp:0.0.0.0:80->10.26.0.10:80銆備竴琛岃緭鍏ヤ竴鏉★紝浠ユ崲琛屾垨閫楀彿鍒嗛殧" style="height: 50px; font-family:'Courier New', Courier, mono; font-size: 11px;"></textarea>
                                             </td>
                                         </tr>
-										<tr>
-                                            <th>
-                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(27)">开启优化传输</a></label>
-                                            </th>
-                                            <td colspan="2">
-                                                <div class="switch_field" style="display:table-cell;float: left;">
-                                                    <label for="vnt_first_latency_enable">
-                                                        <input id="vnt_first_latency_enable" class="switch" type="checkbox" style="display: none;">
-                                                        <div class="switch_container" >
-                                                            <div class="switch_bar"></div>
-                                                            <div class="switch_circle transition_style">
-                                                                <div></div>
-                                                            </div>
-                                                        </div>
-                                                    </label>
-                                                </div>
+                                        <tr>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(10)">鏈湴瀛愮綉瀵瑰瀹ｅ憡 (output)</a></th>
+                                            <td>
+                                                <textarea type="text" class="input_ss_table" id="vnt_localadd" name="vnt_localadd" placeholder="閫夊～锛屽鍛婃湰鍦板眬鍩熺綉娈碉紝渚嬪: 192.168.50.0/24銆傚涓綉娈典互鑻辨枃閫楀彿 ','銆?|' 鎴栨崲琛屽垎闅? style="height: 50px; font-family:'Courier New', Courier, mono; font-size: 11px;"></textarea>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(11)">鐩爣灞€鍩熺綉璺敱杞彂 (input)</a></th>
+                                            <td>
+                                                <textarea type="text" class="input_ss_table" id="vnt_peeradd" name="vnt_peeradd" placeholder="閫夊～锛屾坊鍔犲埌瀵圭灞€鍩熺綉鐨勮矾鐢憋紝渚嬪: 192.168.123.0/24銆傚涓綉娈典互鑻辨枃閫楀彿 ','銆?|' 鎴栨崲琛屽垎闅? style="height: 50px; font-family:'Courier New', Courier, mono; font-size: 11px;"></textarea>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(2)">STUN 鏈嶅姟鎺㈡祴鍦板潃</a></th>
+                                            <td>
+                                                <textarea type="text" class="input_ss_table" id="vnt_stunaddr" name="vnt_stunaddr" placeholder="閫夊～锛孲TUN鍦板潃渚嬪: stun.qq.com:3478銆傚涓湴鍧€浠ヨ嫳鏂囬€楀彿 ','銆?|' 鎴栨崲琛屽垎闅? style="height: 50px; font-family:'Courier New', Courier, mono; font-size: 11px;"></textarea>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(13)">鎸囧畾鍑哄彛缃戝崱 (device)</a></th>
+                                            <td>
+                                                <select class="input_ss_table" id="vnt_local_dev" name="vnt_local_dev">
+                                                    <option value="">涓嶇粦瀹?/option>
+                                                </select>
                                             </td>
                                         </tr>
                                     </table>
                                     </div>
+                                    
                                     <div id="customize_conf_table">
                                     <table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#6b8fa3" class="FormTable" style="box-shadow: 3px 3px 10px #000;margin-top: 0px;">
                                         <thead>
                                             <tr>
-                                            <td colspan="2"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(23)">vnts 服务器设置</a></td>
+                                            <td><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(23)">vnts2 鏈嶅姟鍣ㄨ缃?/a></td>
                                             </tr>
                                         </thead>
                                            <tr id="vnts">
                                             <th>
-                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(29)">开启服务器</a></label>
+                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(29)">寮€鍚湇鍔″櫒</a></label>
                                             </th>
                                             <td colspan="2">
                                                 <div class="switch_field" style="display:table-cell;float: left;">
@@ -1544,107 +1448,63 @@ function get_installog(s) {
                                                         </div>
                                                     </label>
                                                 </div>
-                                                <a> <button id="vnts_action_btn" class="vnt_custom_btn"></button></a>
-                                                <a type="button" class="web_btn" style="cursor:pointer; display: none;padding-top:2px;margin-left:6px;margin-top:0px;float: right; position: relative; right: 60%;" href="javascript:void(0);" onclick="openWebInterface()">WEB界面</a>
+                                                <div>
+                                                    <button id="vnts_action_btn" class="vnt_custom_btn"></button>
+                                                    <a type="button" id="open_web_btn" class="web_btn" style="cursor:pointer; display: none;padding-top:2px;margin-left:6px;margin-top:0px;float: right; position: relative; right: 60%;" href="javascript:void(0);" onclick="openWebInterface()">WEB鐣岄潰</a>
+                                                </div>
                                             </td>
                                         </tr>
                                         <tr id="vnts_status">
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(4)">运行状态</th>
-                                            <td><span id="status2">获取中...</span>
-                                            </td>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(4)">杩愯鐘舵€?/th>
+                                            <td><span id="status2">鑾峰彇涓?..</span></td>
                                         </tr>
-                                       
                                         <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(17)">定时功能(<i>0为关闭</i>)</a></th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(17)">瀹氭椂鍔熻兘(<i>0涓哄叧闂?/i>)</a></th>
                                             <td>
-                                                每 <input type="text" oninput="this.value=this.value.replace(/[^\d]/g, '')" id="vnts_cron_time" name="vnts_cron_time" class="input_3_table" maxlength="2" value="0" placeholder="" />
+                                                姣?<input type="text" oninput="this.value=this.value.replace(/[^\d]/g, '')" id="vnts_cron_time" name="vnts_cron_time" class="input_3_table" maxlength="2" value="0" placeholder="" />
                                                 <select id="vnts_cron_hour_min" name="vnts_cron_hour_min" style="width:60px;margin:3px 2px 0px 2px;" class="input_option">
-                                                    <option value="min">分钟</option>
-                                                    <option value="hour">小时</option>
+                                                    <option value="min">鍒嗛挓</option>
+                                                    <option value="hour">灏忔椂</option>
                                                 </select> 
-                                                    <select id="vnts_cron_type" name="vnts_cron_type" style="width:60px;margin:3px 2px 0px 2px;" class="input_option">
-                                                        <option value="watch">检查</option>
-                                                        <option value="start">重启</option>
-                                                    </select> 一次服务
-                                            </td>
+                                                <select id="vnts_cron_type" name="vnts_cron_type" style="width:60px;margin:3px 2px 0px 2px;" class="input_option">
+                                                    <option value="watch">妫€鏌?/option>
+                                                    <option value="start">閲嶅惎</option>
+                                                </select> 涓€娆℃湇鍔?                                            </td>
                                         </tr>
-
                                         <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(30)">程序运行日志</th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(30)">绋嬪簭杩愯鏃ュ織</th>
                                             <td>
-											    
-												<a type="button" class="info_btn" style="cursor:pointer" href="javascript:void(0);" onclick="open_conf('vnts_cmd');" >状态信息</a>&nbsp;
-                                                <a type="button" class="info_btn" style="cursor:pointer" href="javascript:void(0);" onclick="open_conf('vnts_log');" >查看日志</a>
-                                            
+                                                <a type="button" class="info_btn" style="cursor:pointer" href="javascript:void(0);" onclick="open_conf('vnts_cmd');" >鐘舵€佷俊鎭?/a>&nbsp;
+                                                <a type="button" class="info_btn" style="cursor:pointer" href="javascript:void(0);" onclick="open_conf('vnts_log');" >鏌ョ湅鏃ュ織</a>
                                             </td>
                                         </tr>
-										
+                                        <tr style="background-color: #576d73; color: #fff;">
+                                            <td colspan="3" style="font-weight: bold; padding: 6px 10px;">鏈嶅姟绔牳蹇冨弬鏁伴厤缃?/td>
+                                        </tr>
                                         <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(31)">token白名单(<i>多个以 | 隔开</i>)</a></th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(31)">杩炴帴楠岃瘉瀵嗙爜 (server_token)</a></th>
                                             <td>
-                                               <textarea  type="text" class="input_ss_table" value="" id="vnts_token" name="vnts_token"  value="" placeholder="test|abcd"></textarea>
-                                            </td>
-                                        </tr>
-
-                                        <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(32)">监听端口</a></th>
-                                            <td>
-                                        <input type="text" oninput="this.value=this.value.replace(/[^\d]/g, ''); if(value>65535)value=65535" class="input_ss_table" id="vnts_port" name="vnts_port" maxlength="6" value="" placeholder="" />
-                                            </td>
-                                        </tr>
-										<tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(33)">指定DHCP网关</a></th>
-                                            <td>
-                                                <input type="text" class="input_ss_table" value="" id="vnts_gateway" name="vnts_gateway" maxlength="100" value="" placeholder="10.26.0.1"/>
+                                                <input type="text" class="input_ss_table" id="vnts2_token" name="vnts2_token" placeholder="閫夊～锛岄檺鍒剁綉缁滃鎴风蹇呴』鍑瀵嗙爜鎺ュ叆" />
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(34)">指定子网掩码</a></th>
-                                            <td>
-                                                <input type="text" class="input_ss_table" value="" id="vnts_mask" name="vnts_mask" maxlength="100" value="" placeholder="255.255.255.0"/>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(21)">自定义程序路径</a></th>
-                                            <td>
-                                                <input type="text"  class="input_ss_table" id="vnts_path" name="vnts_path" maxlength="500" value="" placeholder="必填，例如/koolshare/bin/vnts"/>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(36)">启用WEB管理界面</a></th>
-                                            <td>
-                                                <select id="vnts_web_enable" name="vnts_web_enable" style="width:165px;margin:0px 0px 0px 2px;" value="0" class="input_option" >
-                                                    <option value="0">关闭</option>
-                                                    <option value="1">启用</option>
-                                                </select>
-                                            </td>
-                                        </tr>
-                                        <tr id="vnts_webport" style="display: none;">
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(37)">WEB管理端口</a></th>
-                                            <td>
-                                        <input type="text" oninput="this.value=this.value.replace(/[^\d]/g, ''); if(value>65535)value=65535" class="input_ss_table" id="vnts_web_port" name="vnts_web_port" maxlength="6" value="" placeholder="29870" />
-                                            </td>
-                                        </tr>
-                                         <tr id="vnts_webuser" style="display: none;">
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(38)">用户名</a></th>
-                                            <td>
-                                                <input type="password" name="vnts_web_user" id="vnts_web_user" class="input_ss_table" autocomplete="new-password" autocorrect="off" autocapitalize="off" value="" onBlur="switchType(this, false);" onFocus="switchType(this, true);" placeholder="admin" />
-                                            </td>
-                                        </tr>
-                                         <tr id="vnts_webpass" style="display: none;">
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(39)">密码</a></th>
-                                            <td>
-                                                <input type="password" name="vnts_web_pass" id="vnts_web_pass" class="input_ss_table" autocomplete="new-password" autocorrect="off" autocapitalize="off" value="" onBlur="switchType(this, false);" onFocus="switchType(this, true);" placeholder="admin" />
-                                            </td>
-                                        </tr>
-                                         <tr id="vnts_webwan" style="display: none;">
-                                            <th>
-                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(40)">允许外网访问WEB</a></label>
-                                            </th>
+                                            <th>铏氭嫙缃戠粶鍒嗛厤缃戞 (network)</th>
                                             <td colspan="2">
-                                                <div class="switch_field" style="display:table-cell;float: left;">
-                                                    <label for="vnts_web_wan">
-                                                        <input id="vnts_web_wan" class="switch" type="checkbox" style="display: none;">
+                                                <input type="text" class="input_ss_table" id="vnts2_network" name="vnts2_network" placeholder="榛樿: 10.26.0.0/24" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>IP 绉熺害澶辨晥鏃堕暱 (绉?</th>
+                                            <td colspan="2">
+                                                <input type="text" class="input_ss_table" id="vnts2_lease_duration" name="vnts2_lease_duration" placeholder="榛樿: 86400 (24灏忔椂)" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>鏈湴鏁版嵁鎸佷箙鍖栦繚瀛?(persistence)</th>
+                                            <td colspan="2">
+                                                <div class="switch_field" style="display:table-cell;float:left;margin-top:0px;">
+                                                    <label for="vnts2_persistence">
+                                                        <input id="vnts2_persistence" class="switch" type="checkbox" style="display: none;">
                                                         <div class="switch_container" >
                                                             <div class="switch_bar"></div>
                                                             <div class="switch_circle transition_style">
@@ -1655,22 +1515,91 @@ function get_installog(s) {
                                                 </div>
                                             </td>
                                         </tr>
-                                         <tr>
-                                            <th>
-                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(25)">开启数据指纹校验</a></label>
-                                            </th>
+                                        <tr style="background-color: #576d73; color: #fff;">
+                                            <td colspan="3" style="font-weight: bold; padding: 6px 10px;">缁戝畾缃戝彛鍙婄鍙ｈ缃?/td>
+                                        </tr>
+                                        <tr>
+                                            <th>TCP 鏈嶅姟鐩戝惉缁戝畾 (tcp_bind)</th>
                                             <td colspan="2">
-                                                <div class="switch_field" style="display:table-cell;float: left;">
-                                                    <label for="vnts_finger_enable">
-                                                        <input id="vnts_finger_enable" class="switch" type="checkbox" style="display: none;">
-                                                        <div class="switch_container" >
-                                                            <div class="switch_bar"></div>
-                                                            <div class="switch_circle transition_style">
-                                                                <div></div>
-                                                            </div>
-                                                        </div>
-                                                    </label>
-                                                </div>
+                                                <input type="text" class="input_ss_table" id="vnts2_tcp_bind" name="vnts2_tcp_bind" placeholder="榛樿: 0.0.0.0:29872" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>QUIC 鏈嶅姟鐩戝惉缁戝畾 (quic_bind)</th>
+                                            <td colspan="2">
+                                                <input type="text" class="input_ss_table" id="vnts2_quic_bind" name="vnts2_quic_bind" placeholder="榛樿: 0.0.0.0:29872" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>WS/WSS 鏈嶅姟鐩戝惉缁戝畾 (ws_bind)</th>
+                                            <td colspan="2">
+                                                <input type="text" class="input_ss_table" id="vnts2_ws_bind" name="vnts2_ws_bind" placeholder="榛樿: 0.0.0.0:29872" />
+                                            </td>
+                                        </tr>
+                                        <tr style="background-color: #576d73; color: #fff;">
+                                            <td colspan="3" style="font-weight: bold; padding: 6px 10px;">Web 鎺у埗鍚庡彴璁剧疆</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Web 鐩戝惉缁戝畾 (web_bind)</th>
+                                            <td colspan="2">
+                                                <input type="text" class="input_ss_table" id="vnts2_web_bind" name="vnts2_web_bind" placeholder="榛樿: 0.0.0.0:29871" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Web 鐧诲綍鐢ㄦ埛鍚?/th>
+                                            <td colspan="2">
+                                                <input type="text" class="input_ss_table" id="vnts2_username" name="vnts2_username" placeholder="榛樿: admin" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Web 鐧诲綍瀵嗙爜</th>
+                                            <td colspan="2">
+                                                <input type="password" class="input_ss_table" id="vnts2_password" name="vnts2_password" placeholder="榛樿: admin" onBlur="switchType(this, false);" onFocus="switchType(this, true);" autocomplete="new-password" />
+                                            </td>
+                                        </tr>
+                                        <tr style="background-color: #576d73; color: #fff;">
+                                            <td colspan="3" style="font-weight: bold; padding: 6px 10px;">瀹夊叏璇佷功鍙婂绔瓥鐣?(閫夊～)</td>
+                                        </tr>
+                                        <tr>
+                                            <th>TLS 鍏挜璇佷功鏂囦欢璺緞 (cert)</th>
+                                            <td colspan="2">
+                                                <input type="text" class="input_ss_table" id="vnts2_cert" name="vnts2_cert" placeholder="渚嬪: /koolshare/vnt2/cert.pem" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>TLS 绉侀挜瀵嗛挜鏂囦欢璺緞 (key)</th>
+                                            <td colspan="2">
+                                                <input type="text" class="input_ss_table" id="vnts2_key" name="vnts2_key" placeholder="渚嬪: /koolshare/vnt2/key.pem" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>铏氭嫙缃戠粶 Token 鎺ュ叆鐧藉悕鍗?/th>
+                                            <td colspan="2">
+                                                <textarea type="text" class="input_ss_table" id="vnts2_whitelist" name="vnts2_whitelist" placeholder="閫夊～锛屼粎闄愭寚瀹歍oken鎺ュ叆銆傚涓互鑻辨枃閫楀彿 ','銆?|' 鎴栨崲琛屽垎闅? style="height: 50px; font-family:'Courier New', Courier, mono; font-size: 11px;"></textarea>
+                                            </td>
+                                        </tr>
+                                        <tr style="background-color: #576d73; color: #fff;">
+                                            <td colspan="3" style="font-weight: bold; padding: 6px 10px;">澶氭湇鍔″櫒浜掕仈璁剧疆 (閫夊～)</td>
+                                        </tr>
+                                        <tr>
+                                            <th>浜掕仈鐩戝惉缁戝畾 (server_quic_bind)</th>
+                                            <td colspan="2">
+                                                <input type="text" class="input_ss_table" id="vnts2_server_quic_bind" name="vnts2_server_quic_bind" placeholder="渚嬪: 0.0.0.0:29873" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>浜掕仈鏈嶅姟鍣ㄨ妭鐐瑰垪琛?(peer_servers)</th>
+                                            <td colspan="2">
+                                                <textarea type="text" class="input_ss_table" id="vnts2_peer_servers" name="vnts2_peer_servers" placeholder="渚嬪: 1.2.3.4:29873銆傚涓湴鍧€浠ヨ嫳鏂囬€楀彿 ','銆?|' 鎴栨崲琛屽垎闅? style="height: 50px; font-family:'Courier New', Courier, mono; font-size: 11px;"></textarea>
+                                            </td>
+                                        </tr>
+                                        <tr style="background-color: #576d73; color: #fff;">
+                                            <td colspan="3" style="font-weight: bold; padding: 6px 10px;">鑷畾涔夌綉娈电偣瀵圭綉璺敱鏄犲皠 (閫夊～)</td>
+                                        </tr>
+                                        <tr>
+                                            <th>灞€鍩熺綉娈电綉鍏虫寚鍚?(custom_nets)</th>
+                                            <td colspan="2">
+                                                <textarea type="text" class="input_ss_table" id="vnts2_custom_nets" name="vnts2_custom_nets" placeholder="閫夊～锛屾牸寮忎负: 缃戠粶缂栧彿=鐩爣灞€鍩熺綉娈?(渚嬪 net1=192.168.1.0/24)銆備竴琛岃緭鍏ヤ竴鏉★紝浠ユ崲琛屾垨閫楀彿鍒嗛殧" style="height: 50px; font-family:'Courier New', Courier, mono; font-size: 11px;"></textarea>
                                             </td>
                                         </tr>
                                     </table>

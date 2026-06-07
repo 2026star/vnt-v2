@@ -1,4 +1,4 @@
-﻿#!/bin/sh
+#!/bin/sh
 
 source /koolshare/scripts/base.sh
 eval `dbus export vnt_`
@@ -13,14 +13,11 @@ vnts_log=/home/root/log/vnts2.log
 
 vnt_enable=`dbus get vnt_enable`
 vnts_enable=`dbus get vnts_enable`
-vnt_wg_enable=`dbus get vnt_wg_enable`
 vnt_proxy_enable=`dbus get vnt_proxy_enable`
-vnt_W_enable=`dbus get vnt_W_enable`
 vnt_finger_enable=`dbus get vnt_finger_enable`
 vnt_relay_enable=`dbus get vnt_relay_enable`
 vnt_first_latency_enable=`dbus get vnt_first_latency_enable`
 vnt_tun_name=`dbus get vnt_tun_name`
-vnts_finger_enable=`dbus get vnts_finger_enable`
 vnt_cron_time=`dbus get vnt_cron_time`
 vnt_cron_hour_min=`dbus get vnt_cron_hour_min`
 vnts_cron_time=`dbus get vnts_cron_time`
@@ -29,7 +26,6 @@ vnt_local_dev=`dbus get vnt_local_dev`
 vnt_token=`dbus get vnt_token`
 vnt_compressor=`dbus get vnt_compressor`
 vnt_mapping=`dbus get vnt_mapping`
-vnts_token=`dbus get vnts_token`
 vnt_ipmode=`dbus get vnt_ipmode`
 vnt_static_ip=`dbus get vnt_static_ip`
 vnt_desvice_id=`dbus get vnt_desvice_id`
@@ -38,23 +34,12 @@ vnt_localadd=`dbus get vnt_localadd`
 vnt_peeradd=`dbus get vnt_peeradd`
 vnt_serveraddr=`dbus get vnt_serveraddr`
 vnt_stunaddr=`dbus get vnt_stunaddr`
-vnt_ipv4_mode=`dbus get vnt_ipv4_mode`
 vnt_cron_type=`dbus get vnt_cron_type`
 vnts_cron_type=`dbus get vnts_cron_type`
-vnt_port=`dbus get vnt_port`
-vnts_port=`dbus get vnts_port`
 vnt_mtu=`dbus get vnt_mtu`
-vnt_passmode=`dbus get vnt_passmode`
 vnt_key=`dbus get vnt_key`
 vnt_path=`dbus get vnt_path`
 vnts_path=`dbus get vnts_path`
-vnts_mask=`dbus get vnts_mask`
-vnts_gateway=`dbus get vnts_gateway`
-vnts_web=`dbus get vnts_web_enable`
-vnts_web_port=`dbus get vnts_web_port`
-vnts_web_pass=`dbus get vnts_web_pass`
-vnts_web_user=`dbus get vnts_web_user`
-vnts_web_wan=`dbus get vnts_web_wan`
 user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36'
 lanaddr=$(ifconfig br0|grep -Eo "inet addr.+"|awk -F ":| " '{print $3}' 2>/dev/null)
 if [ -z "$vnt_path" ] ; then
@@ -211,15 +196,6 @@ onkillvnt(){
    iptables -D OUTPUT -p tcp -j ACCEPT 2>/dev/null
    ip6tables -D OUTPUT -p tcp -j ACCEPT 2>/dev/null
    [ ! -z "$vnt_static_ip" ] && [ ! -z "$lanaddr" ] && iptables -t nat -D PREROUTING -p tcp -d ${vnt_static_ip} --dport 80 -j DNAT --to-destination ${lanaddr}:80 2>/dev/null
-    if [ ! -z "$vnt_port" ] ; then
-         if [ ! -z "$(echo $vnt_port | grep ',' )" ] ; then
-	     vnt_tcp_port="${vnt_port%%,*}"
-	 else
-             vnt_tcp_port="$vnt_port"
-         fi
-	 iptables -D INPUT -p tcp --dport $vnt_tcp_port -j ACCEPT 2>/dev/null
-         ip6tables -D INPUT -p tcp --dport $vnt_tcp_port -j ACCEPT 2>/dev/null
-    fi
 }
 onkillvnts(){
     PIDS=$(pidof vnts2)
