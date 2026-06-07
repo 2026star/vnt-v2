@@ -1,0 +1,5 @@
+/target
+./wintun.dll
+vnt_config
+vnt_current_config.txt
+logs/*
