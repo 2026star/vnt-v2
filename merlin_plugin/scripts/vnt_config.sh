@@ -1,4 +1,4 @@
-#!/bin/sh
+﻿#!/bin/sh
 
 source /koolshare/scripts/base.sh
 eval `dbus export vnt_`
@@ -247,17 +247,17 @@ onkillvnts(){
 onstop(){
 	onkillvnt
 	onkillvnts
-	logger "銆愯蒋浠朵腑蹇冦€戯細鍏抽棴 vnt..."
-        [ -z "$(pidof vnt2_cli)" ] && logg "瀹㈡埛绔凡鍋滄杩愯" "vnt-cli"
-        [ -z "$(pidof vnts2)" ] &&  logg "鏈嶅姟绔凡鍋滄杩愯" "vnts"
+	logger "【软件中心】：关闭 vnt..."
+        [ -z "$(pidof vnt2_cli)" ] && logg "客户端已停止运行" "vnt-cli"
+        [ -z "$(pidof vnts2)" ] &&  logg "服务端已停止运行" "vnts"
 }
 
 fun_updatevnt(){
-    logg "鎻愮ず锛氳閫氳繃Web椤甸潰鎴朣SH鎵嬪姩涓婁紶骞舵浛鎹?vnt2_cli 瀹㈡埛绔簩杩涘埗鏂囦欢锛? "vnt-cli"
+    logg "提示：请通过Web页面或SSH手动上传并替换 vnt2_cli 客户端二进制文件！" "vnt-cli"
 }
 
 fun_updatevnts(){
-    logg "鎻愮ず锛氳閫氳繃Web椤甸潰鎴朣SH鎵嬪姩涓婁紶骞舵浛鎹?vnts2 鏈嶅姟绔簩杩涘埗鏂囦欢锛? "vnts"
+    logg "提示：请通过Web页面或SSH手动上传并替换 vnts2 服务端二进制文件！" "vnts"
 }
 
 write_client_config(){
@@ -265,7 +265,7 @@ write_client_config(){
     
     servers_toml=""
     if [ -n "$vnt_serveraddr" ]; then
-        for s in $(echo "$vnt_serveraddr" | tr '|' ' ' | tr ',' ' '); do
+        for s in $(echo "$vnt_serveraddr" | tr '|' ' ' | tr ',' ' ' | tr '\n' ' '); do
             servers_toml="${servers_toml}\"${s}\", "
         done
         servers_toml=$(echo "$servers_toml" | sed 's/, $//')
@@ -273,7 +273,7 @@ write_client_config(){
     
     stun_toml=""
     if [ -n "$vnt_stunaddr" ]; then
-        for s in $(echo "$vnt_stunaddr" | tr '|' ' ' | tr ',' ' '); do
+        for s in $(echo "$vnt_stunaddr" | tr '|' ' ' | tr ',' ' ' | tr '\n' ' '); do
             stun_toml="${stun_toml}\"${s}\", "
         done
         stun_toml=$(echo "$stun_toml" | sed 's/, $//')
@@ -281,7 +281,7 @@ write_client_config(){
 
     input_toml=""
     if [ -n "$vnt_peeradd" ]; then
-        for val in $(echo "$vnt_peeradd" | tr '|' ' '); do
+        for val in $(echo "$vnt_peeradd" | tr '|' ' ' | tr ',' ' ' | tr '\n' ' '); do
             input_toml="${input_toml}\"${val}\", "
         done
         input_toml=$(echo "$input_toml" | sed 's/, $//')
@@ -289,7 +289,7 @@ write_client_config(){
 
     output_toml=""
     if [ -n "$vnt_localadd" ]; then
-        for val in $(echo "$vnt_localadd" | tr '|' ' '); do
+        for val in $(echo "$vnt_localadd" | tr '|' ' ' | tr ',' ' ' | tr '\n' ' '); do
             output_toml="${output_toml}\"${val}\", "
         done
         output_toml=$(echo "$output_toml" | sed 's/, $//')
@@ -297,7 +297,7 @@ write_client_config(){
 
     mapping_toml=""
     if [ -n "$vnt_mapping" ]; then
-        for val in $(echo "$vnt_mapping" | tr '|' ' '); do
+        for val in $(echo "$vnt_mapping" | tr '|' ' ' | tr ',' ' ' | tr '\n' ' '); do
             mapping_toml="${mapping_toml}\"${val}\", "
         done
         mapping_toml=$(echo "$mapping_toml" | sed 's/, $//')
@@ -458,7 +458,7 @@ fun_start_vnt(){
      [ -z "$vntcli_ver" ] && vntcli_ver="2.0.0"
      dbus set vntcli_version=$vntcli_ver
      
-     logg "寮€濮嬪惎鍔╲nt2_cli_${vntcli_ver}" "vnt-cli"
+     logg "开始启动 vnt2_cli_${vntcli_ver}" "vnt-cli"
      write_client_config
      
      if [ "$(lsmod |grep tun |grep -wc tun)" == "0" ]; then
@@ -474,9 +474,9 @@ fun_start_vnt(){
      
      sleep 5
      if [ -n "$(pidof vnt2_cli)" ]; then
-         logg "vnt2_cli_${vntcli_ver}瀹㈡埛绔惎鍔ㄦ垚鍔燂紒" "vnt-cli"
+         logg "vnt2_cli_${vntcli_ver} 客户端启动成功！" "vnt-cli"
      else
-         logg "vnt2_cli_${vntcli_ver}瀹㈡埛绔惎鍔ㄥけ璐ワ紝璇锋鏌ラ厤缃紒" "vnt-cli"
+         logg "vnt2_cli_${vntcli_ver} 客户端启动失败，请检查配置！" "vnt-cli"
      fi
      echo `date +%s` > /tmp/vnt_time
      
@@ -504,7 +504,7 @@ fun_start_vnts(){
      [ -z "$vnts_ver" ] && vnts_ver="2.0.0"
      dbus set vnts_version=$vnts_ver
      
-     logg "寮€濮嬪惎鍔╲nts2_${vnts_ver}" "vnts"
+     logg "开始启动 vnts2_${vnts_ver}" "vnts"
      write_server_config
      
      mkdir -p /home/root/log
@@ -516,9 +516,9 @@ fun_start_vnts(){
      
      sleep 5
      if [ -n "$(pidof vnts2)" ]; then
-         logg "vnts2_${vnts_ver}鏈嶅姟绔惎鍔ㄦ垚鍔燂紒" "vnts"
+         logg "vnts2_${vnts_ver} 服务端启动成功！" "vnts"
      else
-         logg "vnts2_${vnts_ver}鏈嶅姟绔惎鍔ㄥけ璐ワ紝璇锋鏌ラ厤缃紒" "vnts"
+         logg "vnts2_${vnts_ver} 服务端启动失败，请检查配置！" "vnts"
      fi
      echo `date +%s` > /tmp/vnts_time
      
@@ -560,35 +560,34 @@ vnt_route(){
 }
 vnt_cmds(){
   vntcpu="$(top -b -n1 | grep -E "$(pidof vnt2_cli)" 2>/dev/null| grep -v grep | awk '{for (i=1;i<=NF;i++) {if ($i ~ /vnt2_cli/) break; else cpu=i}} END {print $cpu}')"
-  [ ! -z "$vntcpu" ] && echo "vnt2_cli CPU鍗犵敤 ${vntcpu}% " >/tmp/upload/vnt_cmd.log
+  [ ! -z "$vntcpu" ] && echo "vnt2_cli CPU占用 ${vntcpu}% " >/tmp/upload/vnt_cmd.log
   vntram="$(cat /proc/$(pidof vnt2_cli | awk '{print $NF}')/status|grep -w VmRSS|awk '{printf "%.2fMB\n", $2/1024}')"
-  [ ! -z "$vntram" ] && echo "vnt2_cli 鍐呭瓨鍗犵敤 ${vntram}" >>/tmp/upload/vnt_cmd.log
+  [ ! -z "$vntram" ] && echo "vnt2_cli 内存占用 ${vntram}" >>/tmp/upload/vnt_cmd.log
   vnttime=$(cat /tmp/vnt_time) 
   if [ -n "$vnttime" ] ; then
   time=$(( `date +%s`-vnttime))
   day=$((time/86400))
-   [ "$day" = "0" ] && day=''|| day=" $day澶?
-   time=`date -u -d @${time} +%H灏忔椂%M鍒?S绉抈
+   [ "$day" = "0" ] && day=''|| day=" $day天"
+   time=`date -u -d @${time} +%H小时%M分%S秒`
    fi
-   [ ! -z "$time" ] && echo "vnt2_cli 宸茶繍琛?$time" >>/tmp/upload/vnt_cmd.log 2>&1
+   [ ! -z "$time" ] && echo "vnt2_cli 已运行 $day$time" >>/tmp/upload/vnt_cmd.log 2>&1
    cmdtart="vnt2_cli --conf /koolshare/vnt2/client_config.toml"
-   [ ! -z "$cmdtart" ] && echo "vnt2_cli 鍚姩鍛戒护  $cmdtart" >>/tmp/upload/vnt_cmd.log 2>&1
+   [ ! -z "$cmdtart" ] && echo "vnt2_cli 启动命令  $cmdtart" >>/tmp/upload/vnt_cmd.log 2>&1
 }
 vnts_cmds(){
   vntscpu="$(top -b -n1 | grep -E "$(pidof vnts2)" 2>/dev/null| grep -v grep | awk '{for (i=1;i<=NF;i++) {if ($i ~ /vnts2/) break; else cpu=i}} END {print $cpu}')"
-  [ ! -z "$vntscpu" ] && echo "vnts2 CPU鍗犵敤 ${vntscpu}% " >/tmp/upload/vnts_cmd.log
+  [ ! -z "$vntscpu" ] && echo "vnts2 CPU占用 ${vntscpu}% " >/tmp/upload/vnts_cmd.log
   vntsram="$(cat /proc/$(pidof vnts2 | awk '{print $NF}')/status|grep -w VmRSS|awk '{printf "%.2fMB\n", $2/1024}')"
-  [ ! -z "$vntsram" ] && echo "vnts2 鍐呭瓨鍗犵敤 ${vntsram}" >>/tmp/upload/vnts_cmd.log
+  [ ! -z "$vntsram" ] && echo "vnts2 内存占用 ${vntsram}" >>/tmp/upload/vnts_cmd.log
   vntstime=$(cat /tmp/vnts_time) 
   if [ -n "$vntstime" ] ; then
   time=$(( `date +%s`-vntstime))
   day=$((time/86400))
-   [ "$day" = "0" ] && day=''|| day=" $day澶?
-   time=`date -u -d @${time} +%H灏忔椂%M鍒?S绉抈
+   time=`date -u -d @${time} +%H小时%M分%S秒`
    fi
-   [ ! -z "$time" ] && echo "宸茶繍琛?$time" >>/tmp/upload/vnts_cmd.log 2>&1
+   [ ! -z "$time" ] && echo "vnts2 已运行 $day$time" >>/tmp/upload/vnts_cmd.log 2>&1
    cmdstart="vnts2 -c /koolshare/vnt2/server_config.toml"
-   [ ! -z "$cmdstart" ] && echo "vnts2 鍚姩鍛戒护  $cmdstart" >>/tmp/upload/vnts_cmd.log 2>&1
+   [ ! -z "$cmdstart" ] && echo "vnts2 启动命令  $cmdstart" >>/tmp/upload/vnts_cmd.log 2>&1
 }
 
 case $ACTION in
@@ -610,7 +609,7 @@ restart)
 	;;
 watchvnt)
     [ -n "$(pidof vnt2_cli)" ] && exit
-    logger "銆愯蒋浠朵腑蹇冦€戝畾鏃朵换鍔★細杩涚▼鎺夌嚎锛岄噸鏂板惎鍔?vnt..."
+    logger "【软件中心】定时任务：进程掉线，重新启动 vnt..."
     if [ "${vnt_enable}" != "1" ] ; then
    onkillvnt
    exit
@@ -619,7 +618,7 @@ watchvnt)
 	;;
 watchvnts)
     [ -n "$(pidof vnts2)" ] && exit
-    logger "銆愯蒋浠朵腑蹇冦€戝畾鏃朵换鍔★細杩涚▼鎺夌嚎锛岄噸鏂板惎鍔?vnt..."
+    logger "【软件中心】定时任务：进程掉线，重新启动 vnt..."
 if [ "${vnts_enable}" != "1" ] ; then
    onkillvnts   
    exit  

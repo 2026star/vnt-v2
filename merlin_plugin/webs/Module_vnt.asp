@@ -143,7 +143,7 @@ var params_input = [
     "vnt_token", "vnt_ipmode", "vnt_static_ip", "vnt_desvice_id", "vnt_desvice_name",
     "vnt_localadd", "vnt_peeradd", "vnt_serveraddr", "vnt_stunaddr", "vnt_tun_name",
     "vnt_relay_enable", "vnt_mtu", "vnt_key",
-    "vnt_compressor", "vnt_path", "vnt_mapping", "vnt_local_dev",
+    "vnt_compressor", "vnt_path", "vnt_mapping",
     "vnts_path",
     "vnts2_token", "vnts2_tcp_bind", "vnts2_quic_bind", "vnts2_ws_bind",
     "vnts2_network", "vnts2_lease_duration", "vnts2_web_bind",
@@ -158,7 +158,6 @@ var params_check = [
 function initial() {
 	show_menu(menu_hook);
 	get_dbus_data();
-        get_vnt_ifconfig();
 	get_vnt_status();
 	toggle_func();
 	conf2obj();
@@ -200,67 +199,7 @@ function conf2obj() {
 		}
 	}
 }
-function get_vnt_ifconfig() {
-    var postData = {
-        "id": parseInt(Math.random() * 100000000),
-        "method": "vnt_ifconfig.sh",
-        "params": [],
-        "fields": ""
-    };
-    
-    // 发起 AJAX 请求，只进行一次处理
-    $.ajax({
-        type: "POST",
-        cache: false,
-        url: "/_api/",
-        data: JSON.stringify(postData),
-        dataType: "json",
-        success: function(response) {
-            var select = $('#vnt_local_dev');
-            var vntLocalDevValue = db_vnt['vnt_local_dev']; // 获取当前的值
 
-            // 清空下拉菜单并添加 "不绑定" 作为第一个选项
-            select.empty(); 
-            select.append('<option value="">不绑定</option>'); // 始终显示 "不绑定"
-
-            if (response.result && typeof response.result === "string") {
-                // 使用 & 符号分割接口
-                var interfaces = response.result.trim().split("&"); // 修剪字符串并按 & 分割
-                console.log("Parsed Interfaces:", interfaces); // 查看解析的接口数组
-
-                var hasValidInterfaces = false; // 标志变量，判断是否有有效接口
-
-                // 遍历接口并添加选项
-                interfaces.forEach(function(iface) {
-                    var parts = iface.split('|'); // 使用 | 分割接口名称和地址
-                    if (parts.length === 2) {
-                        var value = parts[0].trim(); // 接口名称
-                        var displayText = parts[0].trim() + ' (' + parts[1].trim() + ')'; // 显示文本
-                        var option = $('<option></option>').attr('value', value).text(displayText);
-
-                        // 如果当前值与接口值匹配，则设置为选中项
-                        if (vntLocalDevValue === value) {
-                            option.prop('selected', true); // 设置当前项为选中状态
-                        }
-
-                        select.append(option); // 添加选项到下拉列表
-                        hasValidInterfaces = true; // 设置标志为 true
-                    }
-                });
-
-                // 如果没有有效接口，仍然只会显示 "不绑定" 选项
-                if (!hasValidInterfaces) {
-                    console.log("No valid interfaces found.");
-                }
-            } else {
-                console.error("Invalid response format:", response);
-            }
-        },
-        error: function(xhr, status, error) {
-            console.error("AJAX Error:", status, error);
-        }
-    });
-}
 
 function get_vnt_status() {
 		var postData = {
@@ -362,17 +301,25 @@ function save() {
 
 	//input
 	for (var i = 0; i < params_input.length; i++) {
-		if (trim(E(params_input[i]).value) && trim(E(params_input[i]).value) != db_vnt[params_input[i]]) {
-			db_vnt[params_input[i]] = trim(E(params_input[i]).value);
-		}else if (!trim(E(params_input[i]).value) && db_vnt[params_input[i]]) {
-			db_vnt[params_input[i]] = "";
-            }
+		var el = E(params_input[i]);
+		if (el) {
+			var val = trim(el.value);
+			if (val && val != db_vnt[params_input[i]]) {
+				db_vnt[params_input[i]] = val;
+			} else if (!val && db_vnt[params_input[i]]) {
+				db_vnt[params_input[i]] = "";
+			}
+		}
 	}
 	// checkbox
 	for (var i = 0; i < params_check.length; i++) {
-        if (E(params_check[i]).checked != db_vnt[params_check[i]]){
-            db_vnt[params_check[i]] = E(params_check[i]).checked ? '1' : '0';
-        }
+		var el = E(params_check[i]);
+		if (el) {
+			var val = el.checked ? '1' : '0';
+			if (val != db_vnt[params_check[i]]) {
+				db_vnt[params_check[i]] = val;
+			}
+		}
 	}
 	
 	// post data
@@ -995,7 +942,7 @@ function openssHint(itemNum) {
 		statusmenu = "开启后在外网将可以访问WEB管理界面，为安全起见，建议设置复杂的用户名和密码，定期更换，避免泄露";
 		_caption = "外网访问WEB";
 	} else if (itemNum == 41) {
-		statusmenu = "端口映射,可以设置多个映射地址以<font color='#F46'>|</font>分隔即可，例如<font color='#F46'>udp:0.0.0.0:80->10.26.0.10:80|tcp:0.0.0.0:80->10.26.0.11:81</font><br>表示将本地udp 80端口的数据转发到10.26.0.10:80，将本地tcp 80端口的数据转发到10.26.0.11:81，转发的目的地址可以使用域名+端口";
+		statusmenu = "端口映射，格式为：协议://本地监听地址-目标虚拟IP-目标映射地址。可以设置多个映射地址，以换行或逗号分隔，例如：<font color='#F46'>tcp://0.0.0.0:81-10.26.0.10-10.26.0.10:80</font>";
 		_caption = "端口映射";
 	} else if (itemNum == 42) {
 		statusmenu = "启用压缩，默认仅支持lz4压缩，开启压缩后，如果数据包长度大于等于128，则会使用压缩，否则还是会按原数据发送<br><font color='#F46'>也支持开启zstd压缩，但是需要自行编译，编译时加入参数--features zstd 确保程序已支持zstd压缩再选用zstd</font><br>如果宽度速度比较慢，可以考虑使用高级别的压缩";
@@ -1402,104 +1349,6 @@ function get_installog(s) {
                                             <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(2)">STUN 服务探测地址</a></th>
                                             <td>
                                                 <textarea type="text" class="input_ss_table" id="vnt_stunaddr" name="vnt_stunaddr" placeholder="选填，STUN地址例如: stun.qq.com:3478。多个地址以英文逗号 ','、'|' 或换行分隔" style="height: 50px; font-family:'Courier New', Courier, mono; font-size: 11px;"></textarea>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(13)">指定出口网卡 (device)</a></th>
-                                            <td>
-                                                <select class="input_ss_table" id="vnt_local_dev" name="vnt_local_dev">
-                                                    <option value="">不绑定</option>
-                                                </select>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th>
-                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(12)">允许接入WireGuard</a></label>
-                                            </th>
-                                            <td colspan="2">
-                                                <div class="switch_field" style="display:table-cell;float: left;">
-                                                    <label for="vnt_wg_enable">
-                                                        <input id="vnt_wg_enable" class="switch" type="checkbox" style="display: none;">
-                                                        <div class="switch_container" >
-                                                            <div class="switch_bar"></div>
-                                                            <div class="switch_circle transition_style">
-                                                                <div></div>
-                                                            </div>
-                                                        </div>
-                                                    </label>
-                                                </div>
-                                            </td>
-                                        </tr>
-										<tr>
-                                            <th>
-                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(22)">开启IP转发</a></label>
-                                            </th>
-                                            <td colspan="2">
-                                                <div class="switch_field" style="display:table-cell;float: left;">
-                                                    <label for="vnt_proxy_enable">
-                                                        <input id="vnt_proxy_enable" class="switch" type="checkbox" style="display: none;">
-                                                        <div class="switch_container" >
-                                                            <div class="switch_bar"></div>
-                                                            <div class="switch_circle transition_style">
-                                                                <div></div>
-                                                            </div>
-                                                        </div>
-                                                    </label>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th>
-                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(24)">开启客户端服务端加密</a></label>
-                                            </th>
-                                            <td colspan="2">
-                                                <div class="switch_field" style="display:table-cell;float: left;">
-                                                    <label for="vnt_W_enable">
-                                                        <input id="vnt_W_enable" class="switch" type="checkbox" style="display: none;">
-                                                        <div class="switch_container" >
-                                                            <div class="switch_bar"></div>
-                                                            <div class="switch_circle transition_style">
-                                                                <div></div>
-                                                            </div>
-                                                        </div>
-                                                    </label>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th>
-                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(25)">开启数据指纹校验</a></label>
-                                            </th>
-                                            <td colspan="2">
-                                                <div class="switch_field" style="display:table-cell;float: left;">
-                                                    <label for="vnt_finger_enable">
-                                                        <input id="vnt_finger_enable" class="switch" type="checkbox" style="display: none;">
-                                                        <div class="switch_container" >
-                                                            <div class="switch_bar"></div>
-                                                            <div class="switch_circle transition_style">
-                                                                <div></div>
-                                                            </div>
-                                                        </div>
-                                                    </label>
-                                                </div>
-                                            </td>
-                                        </tr>
-										<tr>
-                                            <th>
-                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(27)">开启优化传输</a></label>
-                                            </th>
-                                            <td colspan="2">
-                                                <div class="switch_field" style="display:table-cell;float: left;">
-                                                    <label for="vnt_first_latency_enable">
-                                                        <input id="vnt_first_latency_enable" class="switch" type="checkbox" style="display: none;">
-                                                        <div class="switch_container" >
-                                                            <div class="switch_bar"></div>
-                                                            <div class="switch_circle transition_style">
-                                                                <div></div>
-                                                            </div>
-                                                        </div>
-                                                    </label>
-                                                </div>
                                             </td>
                                         </tr>
                                     </table>
