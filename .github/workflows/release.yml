@@ -103,49 +103,19 @@ jobs:
           rm -f dist/vnt/scripts/*.bak
           rm -f dist/vnt/webs/*.bak
           
-          # Bundle the compiled binaries into the plugin folder
+          # Bundle the compiled binaries into the plugin folder (64-bit only)
           cp ./downloaded-artifacts/binaries-aarch64-unknown-linux-musl/vnt2_cli dist/vnt/bin/vnt2_cli_aarch64
           cp ./downloaded-artifacts/binaries-aarch64-unknown-linux-musl/vnt2_ctrl dist/vnt/bin/vnt2_ctrl_aarch64
           cp ./downloaded-artifacts/binaries-aarch64-unknown-linux-musl/vnts2 dist/vnt/bin/vnts2_aarch64
           
-          cp ./downloaded-artifacts/binaries-armv7-unknown-linux-musleabihf/vnt2_cli dist/vnt/bin/vnt2_cli_arm
-          cp ./downloaded-artifacts/binaries-armv7-unknown-linux-musleabihf/vnt2_ctrl dist/vnt/bin/vnt2_ctrl_arm
-          cp ./downloaded-artifacts/binaries-armv7-unknown-linux-musleabihf/vnts2 dist/vnt/bin/vnts2_arm
-          
-          # Create architecture-specific binary tarballs for client and server (optional standalone releases)
-          mkdir -p binary_releases
-          
-          # aarch64 client package
-          mkdir -p temp_client_aarch64
-          cp ./downloaded-artifacts/binaries-aarch64-unknown-linux-musl/vnt2_cli temp_client_aarch64/
-          cp ./downloaded-artifacts/binaries-aarch64-unknown-linux-musl/vnt2_ctrl temp_client_aarch64/
-          tar -zcvf binary_releases/vnt2-client-aarch64.tar.gz -C temp_client_aarch64 vnt2_cli vnt2_ctrl
-          
-          # armv7 client package
-          mkdir -p temp_client_armv7
-          cp ./downloaded-artifacts/binaries-armv7-unknown-linux-musleabihf/vnt2_cli temp_client_armv7/
-          cp ./downloaded-artifacts/binaries-armv7-unknown-linux-musleabihf/vnt2_ctrl temp_client_armv7/
-          tar -zcvf binary_releases/vnt2-client-armv7.tar.gz -C temp_client_armv7 vnt2_cli vnt2_ctrl
-
-          # aarch64 server package
-          mkdir -p temp_server_aarch64
-          cp ./downloaded-artifacts/binaries-aarch64-unknown-linux-musl/vnts2 temp_server_aarch64/
-          tar -zcvf binary_releases/vnts2-server-aarch64.tar.gz -C temp_server_aarch64 vnts2
-
-          # armv7 server package
-          mkdir -p temp_server_armv7
-          cp ./downloaded-artifacts/binaries-armv7-unknown-linux-musleabihf/vnts2 temp_server_armv7/
-          tar -zcvf binary_releases/vnts2-server-armv7.tar.gz -C temp_server_armv7 vnts2
-
           # Package the main Merlin plugin installation package (now contains bin/)
           cd dist
           tar -zcvf ../vnt-koolshare.tar.gz vnt/
           cd ..
           
-          # Prepare all files for GitHub Release
+          # Prepare all files for GitHub Release (plugin package only)
           mkdir -p release_files
           mv vnt-koolshare.tar.gz release_files/
-          mv binary_releases/* release_files/
 
       - name: Archive release package
         uses: actions/upload-artifact@v4
