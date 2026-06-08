@@ -63,7 +63,7 @@ chmod +x /koolshare/init.d/S49vnt.sh
 dbus set softcenter_module_vnt_description=简便高效的异地组网、内网穿透工具
 dbus set softcenter_module_vnt_install=1
 dbus set softcenter_module_vnt_name=vnt
-dbus set softcenter_module_vnt_title="vnt v2.0"
+dbus set softcenter_module_vnt_title="vnt"
 dbus set softcenter_module_vnt_version="$(cat $DIR/version)"
 
 sleep 1

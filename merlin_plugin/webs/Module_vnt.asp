@@ -188,14 +188,38 @@ function conf2obj() {
 	for (var i = 0; i < params_input.length; i++) {
 		var el = E(params_input[i]);
 		if (el) {
-			el.value = db_vnt[params_input[i]] || "";
+			var val = db_vnt[params_input[i]];
+			if (val === undefined || val === null || val === "") {
+				// Provide defaults for specific fields
+				if (params_input[i] === "vnt_serveraddr") val = "tcp://vnt.wherewego.top:29872";
+				else if (params_input[i] === "vnt_tun_name") val = "vnt-tun";
+				else if (params_input[i] === "vnts2_tcp_bind") val = "0.0.0.0:29872";
+				else if (params_input[i] === "vnts2_quic_bind") val = "0.0.0.0:29872";
+				else if (params_input[i] === "vnts2_ws_bind") val = "0.0.0.0:29872";
+				else if (params_input[i] === "vnts2_network") val = "10.26.0.0/24";
+				else if (params_input[i] === "vnts2_lease_duration") val = "86400";
+				else if (params_input[i] === "vnts2_web_bind") val = "0.0.0.0:29871";
+				else if (params_input[i] === "vnts2_username") val = "admin";
+				else if (params_input[i] === "vnts2_password") val = "admin";
+				else val = "";
+			}
+			el.value = val;
 		}
 	}
 	// checkbox
 	for (var i = 0; i < params_check.length; i++) {
 		var el = E(params_check[i]);
 		if (el) {
-			el.checked = db_vnt[params_check[i]] == "1";
+			var val = db_vnt[params_check[i]];
+			if (val === undefined || val === null || val === "") {
+				if (params_check[i] === "vnts2_persistence") {
+					el.checked = true;
+				} else {
+					el.checked = false;
+				}
+			} else {
+				el.checked = val == "1";
+			}
 		}
 	}
 }
@@ -947,6 +971,39 @@ function openssHint(itemNum) {
 	} else if (itemNum == 42) {
 		statusmenu = "启用压缩，默认仅支持lz4压缩，开启压缩后，如果数据包长度大于等于128，则会使用压缩，否则还是会按原数据发送<br><font color='#F46'>也支持开启zstd压缩，但是需要自行编译，编译时加入参数--features zstd 确保程序已支持zstd压缩再选用zstd</font><br>如果宽度速度比较慢，可以考虑使用高级别的压缩";
 		_caption = "数据压缩";
+	} else if (itemNum == 50) {
+		statusmenu = "设定客户端连接服务端时的验证密码（Server Token），非空时所有接入此服务端的客户端必须持有相同的密码。";
+		_caption = "连接验证密码";
+	} else if (itemNum == 52) {
+		statusmenu = "IP 租约回收失效的时长（以秒为单位），默认 86400 秒（24小时）。当客户端离线时长超过此设定值后，其分配到的虚拟 IP 将被服务端回收。";
+		_caption = "IP 租约失效时长";
+	} else if (itemNum == 53) {
+		statusmenu = "启用后服务端会将分配 of IP、互联节点路由等状态信息持久化保存至本地 SQLite 数据库文件中，避免因重启服务导致状态丢失。";
+		_caption = "本地数据持久化";
+	} else if (itemNum == 54) {
+		statusmenu = "自建服务端 TCP 协议的监听绑定地址与端口，留空则不开启 TCP 协议服务。默认：0.0.0.0:29872。";
+		_caption = "TCP 监听绑定";
+	} else if (itemNum == 55) {
+		statusmenu = "自建服务端 QUIC 协议的监听绑定地址与端口，留空则不开启 QUIC 协议服务。默认：0.0.0.0:29872。";
+		_caption = "QUIC 监听绑定";
+	} else if (itemNum == 56) {
+		statusmenu = "自建服务端 WebSocket/WSS 协议的监听绑定地址与端口，留空则不开启 WS 协议服务。默认：0.0.0.0:29872。";
+		_caption = "WS 监听绑定";
+	} else if (itemNum == 57) {
+		statusmenu = "自建服务端 TLS 加密证书的公钥文件存放路径。如果不填写，服务端会自动在内存中生成临时的自签名证书。建议生产环境配置有效证书以避免安全性告警。";
+		_caption = "TLS 证书文件路径";
+	} else if (itemNum == 58) {
+		statusmenu = "自建服务端 TLS 加密证书的私钥文件存放路径，配合证书公钥文件一同配置使用。";
+		_caption = "TLS 私钥文件路径";
+	} else if (itemNum == 59) {
+		statusmenu = "多服务端级联互联时，用于级联通信的 QUIC/UDP 协议监听绑定端口。不启用自建服务端互联则留空。";
+		_caption = "级联监听绑定";
+	} else if (itemNum == 60) {
+		statusmenu = "配置其他互联服务端的通信地址（例如 1.2.3.4:29873），多个地址可用换行、逗号或 | 进行分隔。不进行级联级互联请留空。";
+		_caption = "互联服务器列表";
+	} else if (itemNum == 61) {
+		statusmenu = "在服务端全局指定网络编号到特定对端网关局域网段的映射关系。格式为: 网络编号=目标网段（如 net1=192.168.1.0/24）。每行输入一条，多个可用换行或逗号分隔。";
+		_caption = "局域网段网关指向";
 	} 
 
 	return overlib(statusmenu, OFFSETX, -160, LEFT, STICKY, WIDTH, 'width', CAPTION, _caption, CLOSETITLE, '');
@@ -1415,25 +1472,25 @@ function get_installog(s) {
                                             <td colspan="3" style="font-weight: bold; padding: 6px 10px;">服务端核心参数配置</td>
                                         </tr>
                                         <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(31)">连接验证密码 (server_token)</a></th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(50)">连接验证密码 (server_token)</a></th>
                                             <td>
                                                 <input type="text" class="input_ss_table" id="vnts2_token" name="vnts2_token" placeholder="选填，限制网络客户端必须凭此密码接入" />
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th>虚拟网络分配网段 (network)</th>
+                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(33)">虚拟网络分配网段 (network)</a></th>
                                             <td colspan="2">
                                                 <input type="text" class="input_ss_table" id="vnts2_network" name="vnts2_network" placeholder="默认: 10.26.0.0/24" />
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th>IP 租约失效时长 (秒)</th>
+                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(52)">IP 租约失效时长 (秒)</a></th>
                                             <td colspan="2">
                                                 <input type="text" class="input_ss_table" id="vnts2_lease_duration" name="vnts2_lease_duration" placeholder="默认: 86400 (24小时)" />
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th>本地数据持久化保存 (persistence)</th>
+                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(53)">本地数据持久化保存 (persistence)</a></th>
                                             <td colspan="2">
                                                 <div class="switch_field" style="display:table-cell;float:left;margin-top:0px;">
                                                     <label for="vnts2_persistence">
@@ -1452,19 +1509,19 @@ function get_installog(s) {
                                             <td colspan="3" style="font-weight: bold; padding: 6px 10px;">绑定网口及端口设置</td>
                                         </tr>
                                         <tr>
-                                            <th>TCP 服务监听绑定 (tcp_bind)</th>
+                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(54)">TCP 服务监听绑定 (tcp_bind)</a></th>
                                             <td colspan="2">
                                                 <input type="text" class="input_ss_table" id="vnts2_tcp_bind" name="vnts2_tcp_bind" placeholder="默认: 0.0.0.0:29872" />
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th>QUIC 服务监听绑定 (quic_bind)</th>
+                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(55)">QUIC 服务监听绑定 (quic_bind)</a></th>
                                             <td colspan="2">
                                                 <input type="text" class="input_ss_table" id="vnts2_quic_bind" name="vnts2_quic_bind" placeholder="默认: 0.0.0.0:29872" />
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th>WS/WSS 服务监听绑定 (ws_bind)</th>
+                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(56)">WS/WSS 服务监听绑定 (ws_bind)</a></th>
                                             <td colspan="2">
                                                 <input type="text" class="input_ss_table" id="vnts2_ws_bind" name="vnts2_ws_bind" placeholder="默认: 0.0.0.0:29872" />
                                             </td>
@@ -1473,19 +1530,19 @@ function get_installog(s) {
                                             <td colspan="3" style="font-weight: bold; padding: 6px 10px;">Web 控制后台设置</td>
                                         </tr>
                                         <tr>
-                                            <th>Web 监听绑定 (web_bind)</th>
+                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(37)">Web 监听绑定 (web_bind)</a></th>
                                             <td colspan="2">
                                                 <input type="text" class="input_ss_table" id="vnts2_web_bind" name="vnts2_web_bind" placeholder="默认: 0.0.0.0:29871" />
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th>Web 登录用户名</th>
+                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(38)">Web 登录用户名</a></th>
                                             <td colspan="2">
                                                 <input type="text" class="input_ss_table" id="vnts2_username" name="vnts2_username" placeholder="默认: admin" />
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th>Web 登录密码</th>
+                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(39)">Web 登录密码</a></th>
                                             <td colspan="2">
                                                 <input type="password" class="input_ss_table" id="vnts2_password" name="vnts2_password" placeholder="默认: admin" onBlur="switchType(this, false);" onFocus="switchType(this, true);" autocomplete="new-password" />
                                             </td>
@@ -1494,19 +1551,19 @@ function get_installog(s) {
                                             <td colspan="3" style="font-weight: bold; padding: 6px 10px;">安全证书及对端策略 (选填)</td>
                                         </tr>
                                         <tr>
-                                            <th>TLS 公钥证书文件路径 (cert)</th>
+                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(57)">TLS 公钥证书文件路径 (cert)</a></th>
                                             <td colspan="2">
                                                 <input type="text" class="input_ss_table" id="vnts2_cert" name="vnts2_cert" placeholder="例如: /koolshare/vnt2/cert.pem" />
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th>TLS 私钥密钥文件路径 (key)</th>
+                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(58)">TLS 私钥密钥文件路径 (key)</a></th>
                                             <td colspan="2">
                                                 <input type="text" class="input_ss_table" id="vnts2_key" name="vnts2_key" placeholder="例如: /koolshare/vnt2/key.pem" />
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th>虚拟网络 Token 接入白名单</th>
+                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(31)">虚拟网络 Token 接入白名单</a></th>
                                             <td colspan="2">
                                                 <textarea type="text" class="input_ss_table" id="vnts2_whitelist" name="vnts2_whitelist" placeholder="选填，仅限指定Token接入。多个以英文逗号 ','、'|' 或换行分隔" style="height: 50px; font-family:'Courier New', Courier, mono; font-size: 11px;"></textarea>
                                             </td>
@@ -1515,13 +1572,13 @@ function get_installog(s) {
                                             <td colspan="3" style="font-weight: bold; padding: 6px 10px;">多服务器互联设置 (选填)</td>
                                         </tr>
                                         <tr>
-                                            <th>互联监听绑定 (server_quic_bind)</th>
+                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(59)">互联监听绑定 (server_quic_bind)</a></th>
                                             <td colspan="2">
                                                 <input type="text" class="input_ss_table" id="vnts2_server_quic_bind" name="vnts2_server_quic_bind" placeholder="例如: 0.0.0.0:29873" />
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th>互联服务器节点列表 (peer_servers)</th>
+                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(60)">互联服务器节点列表 (peer_servers)</a></th>
                                             <td colspan="2">
                                                 <textarea type="text" class="input_ss_table" id="vnts2_peer_servers" name="vnts2_peer_servers" placeholder="例如: 1.2.3.4:29873。多个地址以英文逗号 ','、'|' 或换行分隔" style="height: 50px; font-family:'Courier New', Courier, mono; font-size: 11px;"></textarea>
                                             </td>
@@ -1530,7 +1587,7 @@ function get_installog(s) {
                                             <td colspan="3" style="font-weight: bold; padding: 6px 10px;">局域网段网关指向 (custom_nets)</td>
                                         </tr>
                                         <tr>
-                                            <th>局域网段网关指向 (custom_nets)</th>
+                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(61)">局域网段网关指向 (custom_nets)</a></th>
                                             <td colspan="2">
                                                 <textarea type="text" class="input_ss_table" id="vnts2_custom_nets" name="vnts2_custom_nets" placeholder="选填，格式为: 网络编号=目标局域网段 (例如 net1=192.168.1.0/24)。一行输入一条，以换行或逗号分隔" style="height: 50px; font-family:'Courier New', Courier, mono; font-size: 11px;"></textarea>
                                             </td>

@@ -1,4 +1,4 @@
-﻿#!/bin/sh
+#!/bin/sh
 
 source /koolshare/scripts/base.sh
 eval `dbus export vnt_`
@@ -269,6 +269,8 @@ write_client_config(){
             servers_toml="${servers_toml}\"${s}\", "
         done
         servers_toml=$(echo "$servers_toml" | sed 's/, $//')
+    else
+        servers_toml="\"tcp://vnt.wherewego.top:29872\""
     fi
     
     stun_toml=""
@@ -407,21 +409,13 @@ white_list = [${whitelist_toml}]
 peer_servers = [${peers_toml}]
 EOF
 
-    if [ -n "$vnts2_tcp_bind" ]; then
-        echo "tcp_bind = \"${vnts2_tcp_bind}\"" >> /koolshare/vnt2/server_config.toml
-    fi
-    if [ -n "$vnts2_quic_bind" ]; then
-        echo "quic_bind = \"${vnts2_quic_bind}\"" >> /koolshare/vnt2/server_config.toml
-    fi
-    if [ -n "$vnts2_ws_bind" ]; then
-        echo "ws_bind = \"${vnts2_ws_bind}\"" >> /koolshare/vnt2/server_config.toml
-    fi
+    echo "tcp_bind = \"${vnts2_tcp_bind:-"0.0.0.0:29872"}\"" >> /koolshare/vnt2/server_config.toml
+    echo "quic_bind = \"${vnts2_quic_bind:-"0.0.0.0:29872"}\"" >> /koolshare/vnt2/server_config.toml
+    echo "ws_bind = \"${vnts2_ws_bind:-"0.0.0.0:29872"}\"" >> /koolshare/vnt2/server_config.toml
 
-    if [ -n "$vnts2_web_bind" ]; then
-        echo "web_bind = \"${vnts2_web_bind}\"" >> /koolshare/vnt2/server_config.toml
-        echo "username = \"${vnts2_username:-admin}\"" >> /koolshare/vnt2/server_config.toml
-        echo "password = \"${vnts2_password:-admin}\"" >> /koolshare/vnt2/server_config.toml
-    fi
+    echo "web_bind = \"${vnts2_web_bind:-"0.0.0.0:29871"}\"" >> /koolshare/vnt2/server_config.toml
+    echo "username = \"${vnts2_username:-admin}\"" >> /koolshare/vnt2/server_config.toml
+    echo "password = \"${vnts2_password:-admin}\"" >> /koolshare/vnt2/server_config.toml
 
     if [ -n "$vnts2_cert" ]; then
         echo "cert = \"${vnts2_cert}\"" >> /koolshare/vnt2/server_config.toml
