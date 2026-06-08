@@ -39,16 +39,15 @@ if [ "$IS_64BIT" == "1" ]; then
     cp -rf /tmp/vnt/bin/vnts2_aarch64 /koolshare/bin/vnts2
     dbus set vnt_arch="aarch64 (64位)"
 else
-    echo_date "检测到 32 位用户态架构 (armv7)，正在安装 32 位核心程序..."
-    cp -rf /tmp/vnt/bin/vnt2_cli_arm /koolshare/bin/vnt2_cli
-    cp -rf /tmp/vnt/bin/vnt2_ctrl_arm /koolshare/bin/vnt2_ctrl
-    cp -rf /tmp/vnt/bin/vnts2_arm /koolshare/bin/vnts2
+    echo_date "检测到 32 位用户态架构 (armv7) 运行环境，本安装包不包含 32 位核心程序！"
+    echo_date "已自动删除可能残留的 64 位程序，请在安装完成后手动上传 32 位客户端/服务端二进制程序。"
+    rm -f /koolshare/bin/vnt2_cli /koolshare/bin/vnt2_ctrl /koolshare/bin/vnts2
     dbus set vnt_arch="armv7 (32位)"
 fi
 
-chmod +x /koolshare/bin/vnt2_cli
-chmod +x /koolshare/bin/vnt2_ctrl
-chmod +x /koolshare/bin/vnts2
+[ -f "/koolshare/bin/vnt2_cli" ] && chmod +x /koolshare/bin/vnt2_cli
+[ -f "/koolshare/bin/vnt2_ctrl" ] && chmod +x /koolshare/bin/vnt2_ctrl
+[ -f "/koolshare/bin/vnts2" ] && chmod +x /koolshare/bin/vnts2
 
 cp -rf /tmp/vnt/scripts/* /koolshare/scripts/
 cp -rf /tmp/vnt/webs/* /koolshare/webs/

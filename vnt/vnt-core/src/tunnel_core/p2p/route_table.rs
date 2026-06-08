@@ -162,7 +162,11 @@ impl RouteTableInner {
     fn get_by_id(&self, id: &Ipv4Addr) -> Option<Route> {
         let guard = self.route_table.read();
         let list = guard.get(id)?;
-        list.first().cloned()
+        if let Some(direct_route) = list.iter().find(|r| r.is_direct()) {
+            Some(*direct_route)
+        } else {
+            list.first().cloned()
+        }
     }
 
     fn add_owner_route(&self, id: Ipv4Addr, key: RouteKey) {

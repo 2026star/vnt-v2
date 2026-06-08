@@ -63,7 +63,8 @@ impl NetworkManager {
         let device_io_manager = DeviceIOManager::new(task_group.clone());
         let allow_subnet = AllowSubnetExternalRoute::new(config.output.clone());
 
-        let (puncher, p2p_socket, p2p_task) = if !config.no_punch {
+        use crate::context::config::UseChannel;
+        let (puncher, p2p_socket, p2p_task) = if !config.no_punch && config.use_channel != UseChannel::Relay {
             let (puncher, p2p_socket_manager, p2p_task) = init_tunnel(
                 task_group.clone(),
                 app_state.clone(),
@@ -90,6 +91,7 @@ impl NetworkManager {
             tunnel_to_server.clone(),
             p2p_socket.clone(),
             packet_crypto.clone(),
+            config.use_channel,
         );
         let fec_encoder = if config.fec {
             Some(FecEncoder::new(&task_group, basic_outbound.clone()))

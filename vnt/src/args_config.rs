@@ -17,6 +17,7 @@ pub struct FileConfig {
     pub network_code: Option<String>,
     pub ip: Option<Ipv4Addr>,
     pub no_punch: Option<bool>,
+    pub use_channel: Option<String>,
     pub rtx: Option<bool>,
     pub compress: Option<bool>,
     pub fec: Option<bool>,
@@ -120,6 +121,9 @@ pub struct Args {
     /// 关闭打洞
     #[clap(long)]
     pub no_punch: bool,
+    /// 传输通道模式: auto, p2p, relay
+    #[clap(long)]
+    pub use_channel: Option<String>,
     /// 服务端证书验证
     #[clap(long)]
     pub cert_mode: Option<CertValidationMode>,
@@ -228,11 +232,17 @@ fn build_from_args_and_file(args: Args, file: FileConfig) -> anyhow::Result<(Con
         }
     }
 
+    let use_channel_str = args.use_channel
+        .or_else(|| file.use_channel.clone())
+        .unwrap_or_else(|| "auto".to_string());
+    let use_channel = use_channel_str.parse().unwrap_or(vnt_core::context::config::UseChannel::Auto);
+
     let config = Config {
         server_addr,
         network_code,
         ip: args.ip.or(file.ip),
         no_punch: args.no_punch || file.no_punch.unwrap_or(false),
+        use_channel,
         rtx: args.rtx || file.rtx.unwrap_or(false),
         compress: args.compress || file.compress.unwrap_or(false),
         fec: args.fec || file.fec.unwrap_or(false),
@@ -266,6 +276,11 @@ fn build_from_args_only(args: Args) -> anyhow::Result<(Config, CtrlConfig)> {
         Some(id) => id,
         None => vnt_core::utils::device_id::get_device_id()?,
     };
+    let use_channel = args.use_channel
+        .as_deref()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(vnt_core::context::config::UseChannel::Auto);
+
     let config = Config {
         server_addr: args.server,
         network_code: args
@@ -273,6 +288,7 @@ fn build_from_args_only(args: Args) -> anyhow::Result<(Config, CtrlConfig)> {
             .ok_or_else(|| anyhow!("network_code is required"))?,
         ip: args.ip,
         no_punch: args.no_punch,
+        use_channel,
         rtx: args.rtx,
         input: args.input,
         compress: args.compress,
@@ -325,6 +341,11 @@ fn build_from_file_only(file: FileConfig) -> anyhow::Result<(Config, CtrlConfig)
         }
     }
 
+    let use_channel = file.use_channel
+        .as_deref()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(vnt_core::context::config::UseChannel::Auto);
+
     let config = Config {
         server_addr,
         network_code: file
@@ -332,6 +353,7 @@ fn build_from_file_only(file: FileConfig) -> anyhow::Result<(Config, CtrlConfig)
             .ok_or_else(|| anyhow!("network_code is required"))?,
         ip: file.ip,
         no_punch: file.no_punch.unwrap_or(false),
+        use_channel,
         rtx: file.rtx.unwrap_or(false),
         input: file.input.unwrap_or_default(),
         compress: file.compress.unwrap_or(false),

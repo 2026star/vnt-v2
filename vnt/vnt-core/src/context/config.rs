@@ -8,11 +8,35 @@ use ipnet::Ipv4Net;
 use std::collections::HashSet;
 use std::net::Ipv4Addr;
 
+use serde::{Deserialize, Serialize};
+
 pub const MAX_NETWORK_CODE_LEN: usize = 32;
 pub const MAX_DEVICE_ID_LEN: usize = 64;
 pub const MAX_NAME_LEN: usize = 128;
 pub const MAX_VERSION_LEN: usize = 32;
 pub const MAX_MTU: u16 = 1500;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum UseChannel {
+    #[default]
+    Auto,
+    P2p,
+    Relay,
+}
+
+impl std::str::FromStr for UseChannel {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "auto" => Ok(UseChannel::Auto),
+            "p2p" => Ok(UseChannel::P2p),
+            "relay" => Ok(UseChannel::Relay),
+            _ => anyhow::bail!("invalid use_channel: {}", s),
+        }
+    }
+}
 
 #[derive(Debug, Clone, Default)]
 pub struct Config {
@@ -25,6 +49,7 @@ pub struct Config {
     pub ip: Option<Ipv4Addr>,
     pub password: Option<String>,
     pub no_punch: bool,
+    pub use_channel: UseChannel,
     pub compress: bool,
     pub rtx: bool,
     pub fec: bool,

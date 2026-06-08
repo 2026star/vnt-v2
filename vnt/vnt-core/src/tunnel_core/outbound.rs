@@ -12,11 +12,14 @@ use bytes::Bytes;
 use pnet_packet::ipv4::Ipv4Packet;
 use std::net::Ipv4Addr;
 
+use crate::context::config::UseChannel;
+
 #[derive(Clone)]
 pub(crate) struct BasicOutbound {
     server_outbound: ServerOutbound,
     p2p_outbound: Option<P2pOutbound>,
     packet_crypto: PacketCrypto,
+    use_channel: UseChannel,
 }
 
 impl BasicOutbound {
@@ -24,11 +27,13 @@ impl BasicOutbound {
         server_outbound: ServerOutbound,
         p2p_outbound: Option<P2pOutbound>,
         packet_crypto: PacketCrypto,
+        use_channel: UseChannel,
     ) -> Self {
         Self {
             server_outbound,
             p2p_outbound,
             packet_crypto,
+            use_channel,
         }
     }
 
@@ -57,7 +62,9 @@ impl BasicOutbound {
         {
             p2p.send_raw_to(packet, &route.route_key()).await?;
         } else {
-            self.server_outbound.send_raw(dest, packet).await?;
+            if self.use_channel != UseChannel::P2p {
+                self.server_outbound.send_raw(dest, packet).await?;
+            }
         }
         Ok(())
     }
@@ -79,9 +86,12 @@ impl BasicOutbound {
         exclude_ips: Option<Vec<Ipv4Addr>>,
         packet: NetPacket<Bytes>,
     ) -> anyhow::Result<()> {
-        self.server_outbound
-            .send_raw_broadcast(exclude_ips, packet)
-            .await
+        if self.use_channel != UseChannel::P2p {
+            self.server_outbound
+                .send_raw_broadcast(exclude_ips, packet)
+                .await?;
+        }
+        Ok(())
     }
 
     /// 检查是否存在到目标的路由
@@ -126,10 +136,12 @@ impl BasicOutbound {
             p2p.send_raw_to(NetPacket::new(bytes)?, &route.route_key())
                 .await?;
         } else {
-            let bytes = packet.into_buffer().into_bytes().freeze();
-            self.server_outbound
-                .send_raw(dest, NetPacket::new(bytes)?)
-                .await?;
+            if self.use_channel != UseChannel::P2p {
+                let bytes = packet.into_buffer().into_bytes().freeze();
+                self.server_outbound
+                    .send_raw(dest, NetPacket::new(bytes)?)
+                    .await?;
+            }
         }
         Ok(())
     }
