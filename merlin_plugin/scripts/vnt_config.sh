@@ -98,6 +98,22 @@ fun_nat_start(){
 	    #如果开机自启失败，试着去掉上方代码前的 # 号
     fi
 }
+
+check_and_rotate_logs(){
+    # 限制客户端日志大小 (2MB)
+    if [ -f "$vnt_log" ] && [ $(wc -c < "$vnt_log") -gt 2097152 ]; then
+        echo "【$(TZ=UTC-8 date -R +%Y年%m月%d日\ %X)】: 客户端日志过大，自动截断保留最新记录..." > /tmp/vnt_log_tmp
+        tail -n 2000 "$vnt_log" >> /tmp/vnt_log_tmp
+        mv /tmp/vnt_log_tmp "$vnt_log"
+    fi
+    # 限制服务端日志大小 (2MB)
+    if [ -f "$vnts_log" ] && [ $(wc -c < "$vnts_log") -gt 2097152 ]; then
+        echo "【$(TZ=UTC-8 date -R +%Y年%m月%d日\ %X)】: 服务端日志过大，自动截断保留最新记录..." > /tmp/vnts_log_tmp
+        tail -n 2000 "$vnts_log" >> /tmp/vnts_log_tmp
+        mv /tmp/vnts_log_tmp "$vnts_log"
+    fi
+}
+
 # 定时任务
 fun_crontab(){
     if [ "${vnt_enable}" != "1" ] || [ "${vnt_cron_time}"x = "0"x ];then
@@ -105,6 +121,12 @@ fun_crontab(){
     fi
     if [ "${vnts_enable}" != "1" ] || [ "${vnts_cron_time}"x = "0"x ];then
         [ -n "$(cru l | grep vnts_monitor)" ] && cru d vnts_monitor
+    fi
+    # 自动清理日志定时任务 (每30分钟执行一次)
+    if [ "${vnt_enable}" != "1" ] && [ "${vnts_enable}" != "1" ]; then
+        [ -n "$(cru l | grep vnt_log_clean)" ] && cru d vnt_log_clean
+    else
+        [ -z "$(cru l | grep vnt_log_clean)" ] && cru a vnt_log_clean "*/30 * * * * /bin/sh /koolshare/scripts/vnt_config.sh clean_log"
     fi
      if [ "${vnt_cron_hour_min}" == "min" ] && [ "${vnt_cron_time}"x != "0"x ] ; then
         if [ "${vnt_cron_type}" == "watch" ]; then
@@ -247,6 +269,7 @@ onkillvnts(){
 onstop(){
 	onkillvnt
 	onkillvnts
+	[ -n "$(cru l | grep vnt_log_clean)" ] && cru d vnt_log_clean
 	logger "【软件中心】：关闭 vnt..."
         [ -z "$(pidof vnt2_cli)" ] && logg "客户端已停止运行" "vnt-cli"
         [ -z "$(pidof vnts2)" ] &&  logg "服务端已停止运行" "vnts"
@@ -627,6 +650,9 @@ if [ "${vnts_enable}" != "1" ] ; then
 fi
     fun_start_vnts
 	;;
+clean_log)
+    check_and_rotate_logs
+    ;;
 vinfo)
         vnt_info
 	http_response "$1"
@@ -743,6 +769,10 @@ vnt_cli)
 vnts)
         vnts_cmds
 	http_response "$1"
+    ;;
+clean_log)
+    check_and_rotate_logs
+    http_response "$1"
     ;;
 clearvntlog)
         true >${vnt_log}

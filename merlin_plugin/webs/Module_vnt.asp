@@ -1166,12 +1166,12 @@ function get_installog(s) {
                                     <table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#6b8fa3" class="FormTable" style="box-shadow: 3px 3px 10px #000;margin-top: 0px;">
                                         <thead>
                                             <tr>
-                                            <td colspan="2"><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(23)">vnt-cli 客户端设置</a></td>
+                                            <td colspan="2"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(23)">vnt-cli 客户端设置</a></td>
                                             </tr>
                                         </thead>
 										 <tr id="vnt-cli">
                                             <th>
-                                                <label><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(0)">开启客户端</a></label>
+                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(0)">开启客户端</a></label>
                                             </th>
                                             <td colspan="2">
                                                 <div class="switch_field" style="display:table-cell;float: left;">
@@ -1191,13 +1191,13 @@ function get_installog(s) {
                                             </td>
                                         </tr>
                                         <tr id="vnt_status">
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(4)">运行状态</th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(4)">运行状态</th>
                                             <td><span id="status1">获取中...</span>
                                             </td>
                                         </tr>
                                        
                                         <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(17)">定时功能(<i>0为关闭</i>)</a></th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(17)">定时功能(<i>0为关闭</i>)</a></th>
                                             <td>
                                                 每 <input type="text" oninput="this.value=this.value.replace(/[^\d]/g, '')" id="vnt_cron_time" name="vnt_cron_time" class="input_3_table" maxlength="2" value="0" placeholder="" />
                                                 <select id="vnt_cron_hour_min" name="vnt_cron_hour_min" style="width:60px;margin:3px 2px 0px 2px;" class="input_option">
@@ -1212,7 +1212,7 @@ function get_installog(s) {
                                         </tr>
 
                                         <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(30)">设备信息和日志</th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(30)">设备信息和日志</th>
                                             <td>
                                                 <a type="button" class="info_btn" style="cursor:pointer" href="javascript:void(0);" onclick="open_conf('vnt_info');" >当前设备信息</a>&nbsp;
 												<a type="button" class="info_btn" style="cursor:pointer" href="javascript:void(0);" onclick="open_conf('vnt_all');" >所有设备信息</a>&nbsp;
@@ -1223,19 +1223,19 @@ function get_installog(s) {
                                             </td>
                                         </tr>
 										<tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(3)">虚拟网络 Token (network_code)</a></th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(3)">虚拟网络 Token (network_code)</a></th>
                                             <td>
                                                 <input type="password" name="vnt_token" id="vnt_token" title="虚拟网络Token（必填）" class="input_ss_table" autocomplete="new-password" autocorrect="off" autocapitalize="off" maxlength="64" value="" onBlur="switchType(this, false);" onFocus="switchType(this, true);" placeholder="必填，虚拟网络 Token" />
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(1)">服务器地址 (server)</a></th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(1)">服务器地址 (server)</a></th>
                                             <td>
                                                 <textarea type="text" class="input_ss_table" value="" id="vnt_serveraddr" title="例如: tcp://127.0.0.1:29872。多个地址以英文逗号 '',''、''|'' 或换行分隔" name="vnt_serveraddr" placeholder="例如: tcp://127.0.0.1:29872。多个地址以英文逗号 ','、'|' 或换行分隔" style="height: 50px; font-family:'Courier New', Courier, mono; font-size: 11px;"></textarea>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(6)">接口模式</a></th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(6)">接口模式</a></th>
                                             <td>
                                                 <select id="vnt_ipmode" name="vnt_ipmode" style="width:165px;margin:0px 0px 0px 2px;" value="dhcp" class="input_option" >
                                                     <option value="dhcp">动态分配 (DHCP)</option>
@@ -1244,32 +1244,32 @@ function get_installog(s) {
                                             </td>
                                         </tr>
                                         <tr id="static_ip" style="display: none;">
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(7)">指定虚拟 IP (ip)</a></th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(7)">指定虚拟 IP (ip)</a></th>
                                             <td>
                                                 <input type="text" class="input_ss_table" value="" id="vnt_static_ip" title="指定当前客户端虚拟IP，例如: 10.26.0.10" name="vnt_static_ip" placeholder="选择静态指定时必填，请输入有效的IP地址！"/>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(8)">硬件设备 ID (device_id)</a></th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(8)">硬件设备 ID (device_id)</a></th>
                                             <td>
                                                 <input type="text" class="input_ss_table" value="" id="vnt_desvice_id" title="设备物理硬件ID，例如: f3e9f8f8-7aaa-411f-8790-0173c6e8cf58。注意：每台设备ID不能相同！" name="vnt_desvice_id" placeholder="选填，建议和虚拟IP地址填写一致" />
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(9)">设备别名 (device_name)</a></th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(9)">设备别名 (device_name)</a></th>
                                             <td>
                                                 <input type="text" class="input_ss_table" value="" id="vnt_desvice_name" title="设备别名，用于标识此客户端，例如: Merlin_Router" name="vnt_desvice_name" placeholder="选填，设备别名，例如: Merlin_Router" />
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(20)">数据加密密码 (password)</a></th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(20)">数据加密密码 (password)</a></th>
                                             <td>
                                                 <input type="password" name="vnt_key" id="vnt_key" title="端到端数据加密密钥（选填）" class="input_ss_table" autocomplete="new-password" autocorrect="off" autocapitalize="off" value="" onBlur="switchType(this, false);" onFocus="switchType(this, true);" placeholder="选填，端到端加密密码，留空则不开启加密" />
                                             </td>
                                         </tr>
                                         <tr>
                                             <th>
-                                                <label><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(27)">开启优化传输 (rtx)</a></label>
+                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(27)">开启优化传输 (rtx)</a></label>
                                             </th>
                                             <td colspan="2">
                                                 <div class="switch_field" style="display:table-cell;float: left;">
@@ -1286,7 +1286,7 @@ function get_installog(s) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(42)">开启 LZ4 数据压缩 (compress)</a></th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(42)">开启 LZ4 数据压缩 (compress)</a></th>
                                             <td>
                                                 <select id="vnt_compressor" name="vnt_compressor" style="width:165px;margin:0px 0px 0px 2px;" value="off" class="input_option" >
                                                     <option value="off">关闭</option>
@@ -1296,7 +1296,7 @@ function get_installog(s) {
                                         </tr>
                                         <tr>
                                             <th>
-                                                <label><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(12)">开启前向纠错 (fec)</a></label>
+                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(12)">开启前向纠错 (fec)</a></label>
                                             </th>
                                             <td colspan="2">
                                                 <div class="switch_field" style="display:table-cell;float: left;">
@@ -1314,7 +1314,7 @@ function get_installog(s) {
                                         </tr>
                                         <tr>
                                             <th>
-                                                <label><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(22)">允许本节点作为映射出口 (allow_mapping)</a></label>
+                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(22)">允许本节点作为映射出口 (allow_mapping)</a></label>
                                             </th>
                                             <td colspan="2">
                                                 <div class="switch_field" style="display:table-cell;float: left;">
@@ -1331,20 +1331,20 @@ function get_installog(s) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(28)">虚拟网卡名称 (tun_name)</a></th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(28)">虚拟网卡名称 (tun_name)</a></th>
                                             <td>
                                                 <input type="text" class="input_ss_table" value="" id="vnt_tun_name" title="虚拟网卡名称，默认: vnt-tun" name="vnt_tun_name" placeholder="默认: vnt-tun" />
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(16)">最大传输单元 (MTU)</a></th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(16)">最大传输单元 (MTU)</a></th>
                                             <td>
                                                 <input type="text" oninput="this.value=this.value.replace(/[^\d]/g, '')" class="input_ss_table" id="vnt_mtu" title="最大传输单元（MTU）。留空使用自动默认值" name="vnt_mtu" placeholder="默认自动" />
                                             </td>
                                         </tr>
                                         <tr>
                                             <th>
-                                                <label><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(25)">证书指纹安全校验 (cert_mode)</a></label>
+                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(25)">证书指纹安全校验 (cert_mode)</a></label>
                                             </th>
                                             <td colspan="2">
                                                 <div class="switch_field" style="display:table-cell;float: left;">
@@ -1362,7 +1362,7 @@ function get_installog(s) {
                                         </tr>
                                         <tr>
                                             <th>
-                                                <label><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(22)">开启 IP 转发 (no_nat)</a></label>
+                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(22)">开启 IP 转发 (no_nat)</a></label>
                                             </th>
                                             <td colspan="2">
                                                 <div class="switch_field" style="display:table-cell;float: left;">
@@ -1379,7 +1379,7 @@ function get_installog(s) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(26)">连接模式 (no_punch)</a></th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(26)">连接模式 (no_punch)</a></th>
                                             <td>
                                                 <select id="vnt_relay_enable" name="vnt_relay_enable" style="width:165px;margin:0px 0px 0px 2px;" class="input_option">
                                                     <option value="all" selected>自动 (P2P + Relay)</option>
@@ -1389,25 +1389,25 @@ function get_installog(s) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(41)">本地端口映射 (port_mapping)</a></th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(41)">本地端口映射 (port_mapping)</a></th>
                                             <td>
                                                 <textarea type="text" class="input_ss_table" id="vnt_mapping" title="本地端口映射，例如: tcp:0.0.0.0:80->10.26.0.10:80。一行输入一条，以换行或逗号分隔" name="vnt_mapping" placeholder="选填，格式例如: tcp:0.0.0.0:80->10.26.0.10:80。一行输入一条，以换行或逗号分隔" style="height: 50px; font-family:'Courier New', Courier, mono; font-size: 11px;"></textarea>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(10)">本地子网对外宣告 (output)</a></th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(10)">本地子网对外宣告 (output)</a></th>
                                             <td>
                                                 <textarea type="text" class="input_ss_table" id="vnt_localadd" title="宣告本地局域网段，例如: 192.168.50.0/24。多个网段以逗号或换行分隔" name="vnt_localadd" placeholder="选填，宣告本地局域网段，例如: 192.168.50.0/24。多个网段以英文逗号 ','、'|' 或换行分隔" style="height: 50px; font-family:'Courier New', Courier, mono; font-size: 11px;"></textarea>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(11)">目标局域网路由转发 (input)</a></th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(11)">目标局域网路由转发 (input)</a></th>
                                             <td>
                                                 <textarea type="text" class="input_ss_table" id="vnt_peeradd" title="目标局域网路由转发，例如: 192.168.60.0/24,10.26.0.2。多个以逗号或换行分隔" name="vnt_peeradd" placeholder="选填，添加到对端局域网的路由，例如: 192.168.123.0/24。多个网段以英文逗号 ','、'|' 或换行分隔" style="height: 50px; font-family:'Courier New', Courier, mono; font-size: 11px;"></textarea>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(2)">STUN 服务探测地址</a></th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(2)">STUN 服务探测地址</a></th>
                                             <td>
                                                 <textarea type="text" class="input_ss_table" id="vnt_stunaddr" title="STUN服务器地址，例如: stun.qq.com:3478。多个以逗号或换行分隔" name="vnt_stunaddr" placeholder="选填，STUN地址例如: stun.qq.com:3478。多个地址以英文逗号 ','、'|' 或换行分隔" style="height: 50px; font-family:'Courier New', Courier, mono; font-size: 11px;"></textarea>
                                             </td>
@@ -1418,12 +1418,12 @@ function get_installog(s) {
                                     <table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#6b8fa3" class="FormTable" style="box-shadow: 3px 3px 10px #000;margin-top: 0px;">
                                         <thead>
                                             <tr>
-                                            <td colspan="2"><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(23)">vnts 服务器设置</a></td>
+                                            <td colspan="2"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(23)">vnts 服务器设置</a></td>
                                             </tr>
                                         </thead>
                                            <tr id="vnts">
                                             <th>
-                                                <label><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(29)">开启服务器</a></label>
+                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(29)">开启服务器</a></label>
                                             </th>
                                             <td colspan="2">
                                                 <div class="switch_field" style="display:table-cell;float: left;">
@@ -1442,13 +1442,13 @@ function get_installog(s) {
                                             </td>
                                         </tr>
                                         <tr id="vnts_status">
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(4)">运行状态</th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(4)">运行状态</th>
                                             <td><span id="status2">获取中...</span>
                                             </td>
                                         </tr>
                                        
                                         <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(17)">定时功能(<i>0为关闭</i>)</a></th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(17)">定时功能(<i>0为关闭</i>)</a></th>
                                             <td>
                                                 每 <input type="text" oninput="this.value=this.value.replace(/[^\d]/g, '')" id="vnts_cron_time" name="vnts_cron_time" class="input_3_table" maxlength="2" value="0" placeholder="" />
                                                 <select id="vnts_cron_hour_min" name="vnts_cron_hour_min" style="width:60px;margin:3px 2px 0px 2px;" class="input_option">
@@ -1463,7 +1463,7 @@ function get_installog(s) {
                                         </tr>
 
                                         <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(30)">程序运行日志</th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(30)">程序运行日志</th>
                                             <td>
 											    
 												<a type="button" class="info_btn" style="cursor:pointer" href="javascript:void(0);" onclick="open_conf('vnts_cmd');" >状态信息</a>&nbsp;
@@ -1476,25 +1476,25 @@ function get_installog(s) {
                                             <td colspan="3" style="font-weight: bold; padding: 6px 10px;">服务端核心参数配置</td>
                                         </tr>
                                         <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(50)">连接验证密码 (server_token)</a></th>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(50)">连接验证密码 (server_token)</a></th>
                                             <td>
                                                 <input type="text" class="input_ss_table" id="vnts2_token" title="自建服务端的验证密码，客户端连接时需输入相同的密码" name="vnts2_token" placeholder="选填，限制网络客户端必须凭此密码接入" />
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(33)">虚拟网络分配网段 (network)</a></th>
+                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(33)">虚拟网络分配网段 (network)</a></th>
                                             <td colspan="2">
                                                 <input type="text" class="input_ss_table" id="vnts2_network" title="自建服务端的虚拟分配网段，默认: 10.26.0.0/24" name="vnts2_network" placeholder="默认: 10.26.0.0/24" />
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(52)">IP 租约失效时长 (秒)</a></th>
+                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(52)">IP 租约失效时长 (秒)</a></th>
                                             <td colspan="2">
                                                 <input type="text" class="input_ss_table" id="vnts2_lease_duration" title="IP 租约回收失效时长（秒），默认: 86400 (24小时)" name="vnts2_lease_duration" placeholder="默认: 86400 (24小时)" />
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(53)">本地数据持久化保存 (persistence)</a></th>
+                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(53)">本地数据持久化保存 (persistence)</a></th>
                                             <td colspan="2">
                                                 <div class="switch_field" style="display:table-cell;float:left;margin-top:0px;">
                                                     <label for="vnts2_persistence">
@@ -1513,19 +1513,19 @@ function get_installog(s) {
                                             <td colspan="3" style="font-weight: bold; padding: 6px 10px;">绑定网口及端口设置</td>
                                         </tr>
                                         <tr>
-                                            <th><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(54)">TCP 服务监听绑定 (tcp_bind)</a></th>
+                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(54)">TCP 服务监听绑定 (tcp_bind)</a></th>
                                             <td colspan="2">
                                                 <input type="text" class="input_ss_table" id="vnts2_tcp_bind" title="自建服务端 TCP 监听绑定，默认: 0.0.0.0:29872" name="vnts2_tcp_bind" placeholder="默认: 0.0.0.0:29872" />
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(55)">QUIC 服务监听绑定 (quic_bind)</a></th>
+                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(55)">QUIC 服务监听绑定 (quic_bind)</a></th>
                                             <td colspan="2">
                                                 <input type="text" class="input_ss_table" id="vnts2_quic_bind" title="自建服务端 QUIC 监听绑定，默认: 0.0.0.0:29872" name="vnts2_quic_bind" placeholder="默认: 0.0.0.0:29872" />
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(56)">WS/WSS 服务监听绑定 (ws_bind)</a></th>
+                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(56)">WS/WSS 服务监听绑定 (ws_bind)</a></th>
                                             <td colspan="2">
                                                 <input type="text" class="input_ss_table" id="vnts2_ws_bind" title="自建服务端 WS/WSS 监听绑定，默认: 0.0.0.0:29872" name="vnts2_ws_bind" placeholder="默认: 0.0.0.0:29872" />
                                             </td>
@@ -1534,19 +1534,19 @@ function get_installog(s) {
                                             <td colspan="3" style="font-weight: bold; padding: 6px 10px;">Web 控制后台设置</td>
                                         </tr>
                                         <tr>
-                                            <th><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(37)">Web 监听绑定 (web_bind)</a></th>
+                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(37)">Web 监听绑定 (web_bind)</a></th>
                                             <td colspan="2">
                                                 <input type="text" class="input_ss_table" id="vnts2_web_bind" title="自建服务端 Web 监听端口，默认: 0.0.0.0:29871" name="vnts2_web_bind" placeholder="默认: 0.0.0.0:29871" />
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(38)">Web 登录用户名</a></th>
+                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(38)">Web 登录用户名</a></th>
                                             <td colspan="2">
                                                 <input type="text" class="input_ss_table" id="vnts2_username" title="自建服务端 Web 登录用户名，默认: admin" name="vnts2_username" placeholder="默认: admin" />
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(39)">Web 登录密码</a></th>
+                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(39)">Web 登录密码</a></th>
                                             <td colspan="2">
                                                 <input type="password" class="input_ss_table" id="vnts2_password" title="自建服务端 Web 登录密码，默认: admin" name="vnts2_password" placeholder="默认: admin" onBlur="switchType(this, false);" onFocus="switchType(this, true);" autocomplete="new-password" />
                                             </td>
@@ -1555,19 +1555,19 @@ function get_installog(s) {
                                             <td colspan="3" style="font-weight: bold; padding: 6px 10px;">安全证书及对端策略 (选填)</td>
                                         </tr>
                                         <tr>
-                                            <th><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(57)">TLS 公钥证书文件路径 (cert)</a></th>
+                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(57)">TLS 公钥证书文件路径 (cert)</a></th>
                                             <td colspan="2">
                                                 <input type="text" class="input_ss_table" id="vnts2_cert" title="例如: /koolshare/vnt2/cert.pem" name="vnts2_cert" placeholder="例如: /koolshare/vnt2/cert.pem" />
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(58)">TLS 私钥密钥文件路径 (key)</a></th>
+                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(58)">TLS 私钥密钥文件路径 (key)</a></th>
                                             <td colspan="2">
                                                 <input type="text" class="input_ss_table" id="vnts2_key" title="例如: /koolshare/vnt2/key.pem" name="vnts2_key" placeholder="例如: /koolshare/vnt2/key.pem" />
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(31)">虚拟网络 Token 接入白名单</a></th>
+                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(31)">虚拟网络 Token 接入白名单</a></th>
                                             <td colspan="2">
                                                 <textarea type="text" class="input_ss_table" id="vnts2_whitelist" title="仅限指定Token接入。多个以英文逗号 '',''、''|'' 或换行分隔" name="vnts2_whitelist" placeholder="选填，仅限指定Token接入。多个以英文逗号 ','、'|' 或换行分隔" style="height: 50px; font-family:'Courier New', Courier, mono; font-size: 11px;"></textarea>
                                             </td>
@@ -1576,13 +1576,13 @@ function get_installog(s) {
                                             <td colspan="3" style="font-weight: bold; padding: 6px 10px;">多服务器互联设置 (选填)</td>
                                         </tr>
                                         <tr>
-                                            <th><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(59)">互联监听绑定 (server_quic_bind)</a></th>
+                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(59)">互联监听绑定 (server_quic_bind)</a></th>
                                             <td colspan="2">
                                                 <input type="text" class="input_ss_table" id="vnts2_server_quic_bind" title="多服务器级联互联监听，例如: 0.0.0.0:29873" name="vnts2_server_quic_bind" placeholder="例如: 0.0.0.0:29873" />
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(60)">互联服务器节点列表 (peer_servers)</a></th>
+                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(60)">互联服务器节点列表 (peer_servers)</a></th>
                                             <td colspan="2">
                                                 <textarea type="text" class="input_ss_table" id="vnts2_peer_servers" title="多服务器级联互联地址列表，例如: 1.2.3.4:29873" name="vnts2_peer_servers" placeholder="例如: 1.2.3.4:29873。多个地址以英文逗号 ','、'|' 或换行分隔" style="height: 50px; font-family:'Courier New', Courier, mono; font-size: 11px;"></textarea>
                                             </td>
@@ -1591,7 +1591,7 @@ function get_installog(s) {
                                             <td colspan="3" style="font-weight: bold; padding: 6px 10px;">局域网段网关指向 (custom_nets)</td>
                                         </tr>
                                         <tr>
-                                            <th><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(61)">局域网段网关指向 (custom_nets)</a></th>
+                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(61)">局域网段网关指向 (custom_nets)</a></th>
                                             <td colspan="2">
                                                 <textarea type="text" class="input_ss_table" id="vnts2_custom_nets" title="自建服务端网关指向，例如: net1=192.168.50.0/24。一行一条，以换行或逗号分隔" name="vnts2_custom_nets" placeholder="选填，格式为: 网络编号=目标局域网段 (例如 net1=192.168.1.0/24)。一行输入一条，以换行或逗号分隔" style="height: 50px; font-family:'Courier New', Courier, mono; font-size: 11px;"></textarea>
                                             </td>
@@ -1602,11 +1602,11 @@ function get_installog(s) {
     <table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#6b8fa3" class="FormTable_table" style="box-shadow: 3px 3px 10px #000;margin-top: 0px;">
         <thead>
             <tr>
-                <td colspan="2"><a class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(35)">上传程序</a></td>
+                <td colspan="2"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(35)">上传程序</a></td>
             </tr>
         </thead>
         <tr>
-            <th><a sclang class="hintstyle" href="javascript:void(0);" onmouseover="openssHint(35)">选择文件</a></th>
+            <th><a sclang class="hintstyle" href="javascript:void(0);" onclick="openssHint(35)">选择文件</a></th>
             <td>
                 <input sclang type="button" id="upload_btn" class="button_gen" onclick="upload_bin();" value="上传"/>
                 <input style="color:#FFCC00;*color:#000;width: 200px;" id="file" type="file" name="file"/>
