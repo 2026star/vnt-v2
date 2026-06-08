@@ -42,7 +42,7 @@ vnt_path=`dbus get vnt_path`
 vnts_path=`dbus get vnts_path`
 user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36'
 lanaddr=$(ifconfig br0|grep -Eo "inet addr.+"|awk -F ":| " '{print $3}' 2>/dev/null)
-if [ -z "$vnt_path" ] ; then
+if [ -z "$vnt_path" ] || [ -n "$(echo $vnt_path | grep -E '/vnt-cli$|/vnt_cli$')" ]; then
    JFFS_AVAIL=$(df | grep -w "/jffs$" | awk '{print $4}')
    if [ "${JFFS_AVAIL}" -lt "4096" ];then
        vnt_path=/tmp/var/vnt2_cli
@@ -52,7 +52,7 @@ if [ -z "$vnt_path" ] ; then
       dbus set vnt_path=$vnt_path
    fi
 fi
-if [ -z "$vnts_path" ] ; then
+if [ -z "$vnts_path" ] || [ -n "$(echo $vnts_path | grep -E '/vnts$')" ]; then
    JFFS_AVAIL=$(df | grep -w "/jffs$" | awk '{print $4}')
    if [ "${JFFS_AVAIL}" -lt "5084" ];then
        vnts_path=/tmp/var/vnts2
@@ -81,7 +81,7 @@ fun_ntp_sync(){
 
 logg () {
    #logger -t "【vnt】" "$1"
-   echo -e "\033[36;1m【$(TZ=UTC-8 date -R +%Y年%m月%d日\ %X)】: \033[0m\033[35;1m$1 \033[0m"
+   echo "【$(TZ=UTC-8 date -R +%Y年%m月%d日\ %X)】: $1"
    if [ "$2" = "vnt-cli" ] ; then
    echo "【$(TZ=UTC-8 date -R +%Y年%m月%d日\ %X)】: $1 " >>$vnt_log
    fi
