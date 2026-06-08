@@ -170,6 +170,7 @@ pub struct StartConfig {
     pub tun_name: Option<String>,
     pub ip: Option<Ipv4Addr>,
     pub password: Option<String>,
+    pub use_channel: Option<String>,
     #[serde(default)]
     pub no_punch: bool,
     #[serde(default)]
@@ -917,11 +918,17 @@ fn convert_config(cfg: StartConfig) -> anyhow::Result<CoreConfig> {
             x.push_str(":3478");
         }
     }
+    let use_channel = cfg.use_channel
+        .as_deref()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(vnt_core::context::config::UseChannel::Auto);
+
     Ok(CoreConfig {
         server_addr: server_addrs,
         network_code: cfg.network_code,
         ip: cfg.ip,
         no_punch: cfg.no_punch,
+        use_channel,
         rtx: cfg.rtx,
         compress: cfg.compress,
         device_id,
