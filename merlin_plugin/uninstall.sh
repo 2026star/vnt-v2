@@ -22,7 +22,7 @@ rm -rf /koolshare/scripts/vnt*
 rm -rf /koolshare/init.d/?49vnt.sh
 rm -rf /koolshare/bin/vnt*
 rm -rf /koolshare/vnt2
-rm -rf /home/root/log/vnt2_cli.log /home/root/log/vnts2.log
+rm -rf /tmp/vnt2_cli.log /tmp/vnts2.log /tmp/upload/vnt-cli.log /tmp/upload/vnts.log
 rm -rf /koolshare/webs/Module_vnt.asp
 rm -rf /koolshare/res/icon-vnt.png
 

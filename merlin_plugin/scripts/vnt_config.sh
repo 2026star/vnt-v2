@@ -5,11 +5,11 @@ eval `dbus export vnt_`
 eval `dbus export vnts_`
 eval `dbus export vnts2_`
 mkdir -p /tmp/upload
-mkdir -p /home/root/log
-touch /home/root/log/vnt2_cli.log
-touch /home/root/log/vnts2.log
-vnt_log=/home/root/log/vnt2_cli.log
-vnts_log=/home/root/log/vnts2.log
+mkdir -p /tmp
+touch /tmp/vnt2_cli.log
+touch /tmp/vnts2.log
+vnt_log=/tmp/vnt2_cli.log
+vnts_log=/tmp/vnts2.log
 
 vnt_enable=`dbus get vnt_enable`
 vnts_enable=`dbus get vnts_enable`
@@ -489,12 +489,12 @@ fun_start_vnt(){
 		insmod tun
      fi
      
-     mkdir -p /home/root/log
-     [ ! -L "/tmp/upload/vnt-cli.log" ] && ln -sf /home/root/log/vnt2_cli.log /tmp/upload/vnt-cli.log
-     
-     cd /koolshare/vnt2
-     killall vnt2_cli 2>/dev/null
-     $vnt_path --conf /koolshare/vnt2/client_config.toml >>/home/root/log/vnt2_cli.log 2>&1 &
+      rm -f /tmp/upload/vnt-cli.log
+      ln -sf /tmp/vnt2_cli.log /tmp/upload/vnt-cli.log
+      
+      cd /koolshare/vnt2
+      killall vnt2_cli 2>/dev/null
+      $vnt_path --conf /koolshare/vnt2/client_config.toml >>/tmp/vnt2_cli.log 2>&1 &
      
      sleep 5
      if [ -n "$(pidof vnt2_cli)" ]; then
@@ -532,12 +532,12 @@ fun_start_vnts(){
      logg "开始启动 vnts ${vnts_ver_display}" "vnts"
      write_server_config
      
-     mkdir -p /home/root/log
-     [ ! -L "/tmp/upload/vnts.log" ] && ln -sf /home/root/log/vnts2.log /tmp/upload/vnts.log
-     
-     cd /koolshare/vnt2
-     killall -9 vnts2 2>/dev/null
-     $vnts_path -c /koolshare/vnt2/server_config.toml >>/home/root/log/vnts2.log 2>&1 &
+      rm -f /tmp/upload/vnts.log
+      ln -sf /tmp/vnts2.log /tmp/upload/vnts.log
+      
+      cd /koolshare/vnt2
+      killall -9 vnts2 2>/dev/null
+      $vnts_path -c /koolshare/vnt2/server_config.toml >>/tmp/vnts2.log 2>&1 &
      
      sleep 5
      if [ -n "$(pidof vnts2)" ]; then

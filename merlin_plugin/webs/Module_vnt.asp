@@ -376,6 +376,7 @@ function clear_vntlog() {
 		data: JSON.stringify(postData),
 		success: function(response) {
 			if (response.result == uid){
+				E("vnt_logtxt").value = "日志文件为空或程序未启动";
 			}
 		}
 	});
@@ -391,6 +392,7 @@ function clear_vntslog() {
 		data: JSON.stringify(postData),
 		success: function(response) {
 			if (response.result == uid){
+				E("vnts_logtxt").value = "日志文件为空或程序未启动";
 			}
 		}
 	});
@@ -407,9 +409,8 @@ function get_vnt_log() {
 		cache:false,
 		dataType: 'text',
 		success: function(res) {
-            if (res.length == 0){
+            if (!res || res.length == 0){
             E("vnt_logtxt").value = "日志文件为空或程序未启动"; 
-            get_vnt_log();
 			}else{ $('#vnt_logtxt').val(res); 
                       var textarea = document.getElementById('vnt_logtxt');
                       textarea.scrollTop = textarea.scrollHeight;
@@ -559,9 +560,8 @@ function get_vnts_log() {
 		cache:false,
 		dataType: 'text',
 		success: function(res) {
-            if (res.length == 0){
+            if (!res || res.length == 0){
             E("vnts_logtxt").value = "日志文件为空或程序未启动"; 
-            get_vnts_log();
 			}else{ $('#vnts_logtxt').val(res); 
                       var textarea = document.getElementById('vnts_logtxt');
                       textarea.scrollTop = textarea.scrollHeight;
