@@ -43,7 +43,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt-get update && sudo apt-get install -y protobuf-compiler clang llvm libc6-dev-i386 crossbuild-essential-arm64 crossbuild-essential-armhf musl-tools libboost-all-dev libc6-dev
+          sudo apt-get update && sudo apt-get install -y protobuf-compiler clang llvm libc6-dev-i386 crossbuild-essential-arm64 crossbuild-essential-armhf musl-tools libboost-all-dev libc6-dev upx-ucl
           
           # Install musl-cross toolchain
           mkdir -p /opt/musl_gcc
@@ -71,6 +71,9 @@ jobs:
       - name: Prepare Binaries
         run: |
           mkdir -p ./artifacts/${{ matrix.TARGET }}
+          upx --best --lzma ./target/${{ matrix.TARGET }}/release/vnt2_cli || true
+          upx --best --lzma ./target/${{ matrix.TARGET }}/release/vnt2_ctrl || true
+          upx --best --lzma ./target/${{ matrix.TARGET }}/release/vnts2 || true
           cp ./target/${{ matrix.TARGET }}/release/vnt2_cli ./artifacts/${{ matrix.TARGET }}/
           cp ./target/${{ matrix.TARGET }}/release/vnt2_ctrl ./artifacts/${{ matrix.TARGET }}/
           cp ./target/${{ matrix.TARGET }}/release/vnts2 ./artifacts/${{ matrix.TARGET }}/
