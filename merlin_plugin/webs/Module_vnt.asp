@@ -888,8 +888,8 @@ function openssHint(itemNum) {
 		statusmenu = "指定访问对端局域网设备，如对端lan IP是192.168.4.1 虚拟IP是 10.26.0.4 <br>则填192.168.4.0/24,10.26.0.4 多个网段也使用英文|分隔 <br>例如 192.168.4.0/24,10.26.0.4|192.168.5.0/24,10.26.0.5";
 		_caption = "对端网段";
         } else if (itemNum == 12) {
-		statusmenu = "由于WireGuard是来自vnts转发的，如果vnts不受信任，这将会有安全隐患，所以VNT默认不允许WireGuard流量访问本机";
-		_caption = "接入wireguard客户端";
+		statusmenu = "开启前向纠错 (FEC)。在网络质量较差（丢包率高）的环境下，可通过消耗更多的带宽来降低丢包影响，提升传输的稳定性和成功率。";
+		_caption = "开启前向纠错";
 	} else if (itemNum == 13) {
 		statusmenu = "设置作为流量出口的网卡，错误绑定网卡可能会导致无法上网，恢复不绑定即可";
 		_caption = "指定出口节点网卡";
@@ -930,7 +930,7 @@ function openssHint(itemNum) {
 		statusmenu = "p2p(直连): 默认模式，优先打洞直连，如果打洞失败再走服务器转发<br>转发(relay): 仅中继转发模式，会禁止打洞/p2p直连，所有数据只使用服务器转发<br>在网络环境很差时，不使用p2p只使用服务器中继转发效果可能更好";
 		_caption = "连接模式";
 	} else if (itemNum == 27) {
-		statusmenu = "启用后优先使用低延迟通道，默认情况下优先使用p2p通道，某些情况下可能p2p比客户端中继延迟更高，可启用此参数进行优化传输";
+		statusmenu = "开启 QUIC 优化传输。启用后，底层将尝试使用基于 QUIC 协议的优化通道传输数据，以改善弱网环境下的延迟和稳定性。";
 		_caption = "优化传输";
 	} else if (itemNum == 28) {
 		statusmenu = "指定虚拟网卡名称，默认tun模式使用vnt-tun<br>多开时需要使用不同的网卡名";
@@ -983,6 +983,9 @@ function openssHint(itemNum) {
 	} else if (itemNum == 44) {
 		statusmenu = "指定隧道通信端口，用于 P2P 通信。默认为 0（系统自动分配）。如果您有特殊网络需求（如固定 NAT 映射），可以手动指定端口。";
 		_caption = "隧道通信端口";
+	} else if (itemNum == 45) {
+		statusmenu = "是否允许本节点作为端口映射出口。开启后，虚拟局域网内的其他设备才可以使用本设备的虚拟 IP 作为端口映射中的'目标虚拟IP'进行流量转发。";
+		_caption = "允许映射出口";
 	} else if (itemNum == 50) {
 		statusmenu = "设定客户端连接服务端时的验证密码（Server Token），非空时所有接入此服务端的客户端必须持有相同的密码。";
 		_caption = "连接验证密码";
@@ -1332,7 +1335,7 @@ function get_installog(s) {
                                         </tr>
                                         <tr>
                                             <th>
-                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(22)">允许本节点作为映射出口 (allow_mapping)</a></label>
+                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(45)">允许本节点作为映射出口 (allow_mapping)</a></label>
                                             </th>
                                             <td colspan="2">
                                                 <div class="switch_field" style="display:table-cell;float: left;">

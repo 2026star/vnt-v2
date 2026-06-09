@@ -576,22 +576,22 @@ fun_start_stop(){
 vnt_info(){
  vnt_ctrl_path=$(dirname $vnt_path)/vnt2_ctrl
  [ ! -f "$vnt_ctrl_path" ] && vnt_ctrl_path=/koolshare/bin/vnt2_ctrl
- $vnt_ctrl_path --port 11233 info >/tmp/upload/vnt_info.log 2>&1
+ env NO_COLOR=1 $vnt_ctrl_path --port 11233 info 2>&1 | sed "s/$(printf '\033')\[[0-9;]*[a-zA-Z]//g" >/tmp/upload/vnt_info.log
 }
 vnt_all(){
  vnt_ctrl_path=$(dirname $vnt_path)/vnt2_ctrl
  [ ! -f "$vnt_ctrl_path" ] && vnt_ctrl_path=/koolshare/bin/vnt2_ctrl
- $vnt_ctrl_path --port 11233 ips >/tmp/upload/vnt_all.log 2>&1
+ env NO_COLOR=1 $vnt_ctrl_path --port 11233 ips 2>&1 | sed "s/$(printf '\033')\[[0-9;]*[a-zA-Z]//g" >/tmp/upload/vnt_all.log
 }
 vnt_list(){
   vnt_ctrl_path=$(dirname $vnt_path)/vnt2_ctrl
   [ ! -f "$vnt_ctrl_path" ] && vnt_ctrl_path=/koolshare/bin/vnt2_ctrl
-  $vnt_ctrl_path --port 11233 list >/tmp/upload/vnt_list.log 2>&1
+  env NO_COLOR=1 $vnt_ctrl_path --port 11233 list 2>&1 | sed "s/$(printf '\033')\[[0-9;]*[a-zA-Z]//g" >/tmp/upload/vnt_list.log
 }
 vnt_route(){
   vnt_ctrl_path=$(dirname $vnt_path)/vnt2_ctrl
   [ ! -f "$vnt_ctrl_path" ] && vnt_ctrl_path=/koolshare/bin/vnt2_ctrl
-  $vnt_ctrl_path --port 11233 route >/tmp/upload/vnt_route.log 2>&1
+  env NO_COLOR=1 $vnt_ctrl_path --port 11233 route 2>&1 | sed "s/$(printf '\033')\[[0-9;]*[a-zA-Z]//g" >/tmp/upload/vnt_route.log
 }
 vnt_cmds(){
   vntcpu="$(top -b -n1 | grep -E "$(pidof vnt2_cli)" 2>/dev/null| grep -v grep | awk '{for (i=1;i<=NF;i++) {if ($i ~ /vnt2_cli/) break; else cpu=i}} END {print $cpu}')"
