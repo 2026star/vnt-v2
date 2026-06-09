@@ -306,7 +306,7 @@ write_client_config(){
 
     input_toml=""
     if [ -n "$vnt_peeradd" ]; then
-        for val in $(echo "$vnt_peeradd" | sed 's/\\n/ /g' | sed 's/\\r/ /g' | tr '|' ' ' | tr ',' ' ' | tr '\n' ' '); do
+        for val in $(echo "$vnt_peeradd" | sed 's/\\n/ /g' | sed 's/\\r/ /g' | tr '|' ' ' | tr '\n' ' '); do
             input_toml="${input_toml}\"${val}\", "
         done
         input_toml=$(echo "$input_toml" | sed 's/, $//')
