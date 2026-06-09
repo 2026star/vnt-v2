@@ -288,7 +288,7 @@ write_client_config(){
     
     servers_toml=""
     if [ -n "$vnt_serveraddr" ]; then
-        for s in $(echo "$vnt_serveraddr" | tr '|' ' ' | tr ',' ' ' | tr '\n' ' '); do
+        for s in $(echo "$vnt_serveraddr" | sed 's/\\n/ /g' | sed 's/\\r/ /g' | tr '|' ' ' | tr ',' ' ' | tr '\n' ' '); do
             servers_toml="${servers_toml}\"${s}\", "
         done
         servers_toml=$(echo "$servers_toml" | sed 's/, $//')
@@ -298,7 +298,7 @@ write_client_config(){
     
     stun_toml=""
     if [ -n "$vnt_stunaddr" ]; then
-        for s in $(echo "$vnt_stunaddr" | tr '|' ' ' | tr ',' ' ' | tr '\n' ' '); do
+        for s in $(echo "$vnt_stunaddr" | sed 's/\\n/ /g' | sed 's/\\r/ /g' | tr '|' ' ' | tr ',' ' ' | tr '\n' ' '); do
             stun_toml="${stun_toml}\"${s}\", "
         done
         stun_toml=$(echo "$stun_toml" | sed 's/, $//')
@@ -306,7 +306,7 @@ write_client_config(){
 
     input_toml=""
     if [ -n "$vnt_peeradd" ]; then
-        for val in $(echo "$vnt_peeradd" | tr '|' ' ' | tr ',' ' ' | tr '\n' ' '); do
+        for val in $(echo "$vnt_peeradd" | sed 's/\\n/ /g' | sed 's/\\r/ /g' | tr '|' ' ' | tr ',' ' ' | tr '\n' ' '); do
             input_toml="${input_toml}\"${val}\", "
         done
         input_toml=$(echo "$input_toml" | sed 's/, $//')
@@ -314,7 +314,7 @@ write_client_config(){
 
     output_toml=""
     if [ -n "$vnt_localadd" ]; then
-        for val in $(echo "$vnt_localadd" | tr '|' ' ' | tr ',' ' ' | tr '\n' ' '); do
+        for val in $(echo "$vnt_localadd" | sed 's/\\n/ /g' | sed 's/\\r/ /g' | tr '|' ' ' | tr ',' ' ' | tr '\n' ' '); do
             output_toml="${output_toml}\"${val}\", "
         done
         output_toml=$(echo "$output_toml" | sed 's/, $//')
@@ -322,7 +322,7 @@ write_client_config(){
 
     mapping_toml=""
     if [ -n "$vnt_mapping" ]; then
-        for val in $(echo "$vnt_mapping" | tr '|' ' ' | tr ',' ' ' | tr '\n' ' '); do
+        for val in $(echo "$vnt_mapping" | sed 's/\\n/ /g' | sed 's/\\r/ /g' | tr '|' ' ' | tr ',' ' ' | tr '\n' ' '); do
             mapping_toml="${mapping_toml}\"${val}\", "
         done
         mapping_toml=$(echo "$mapping_toml" | sed 's/, $//')
@@ -411,7 +411,7 @@ write_server_config(){
     
     whitelist_toml=""
     if [ -n "$vnts2_whitelist" ]; then
-        for val in $(echo "$vnts2_whitelist" | tr '|' ' ' | tr ',' ' ' | tr '\n' ' '); do
+        for val in $(echo "$vnts2_whitelist" | sed 's/\\n/ /g' | sed 's/\\r/ /g' | tr '|' ' ' | tr ',' ' ' | tr '\n' ' '); do
             whitelist_toml="${whitelist_toml}\"${val}\", "
         done
         whitelist_toml=$(echo "$whitelist_toml" | sed 's/, $//')
@@ -419,7 +419,7 @@ write_server_config(){
 
     peers_toml=""
     if [ -n "$vnts2_peer_servers" ]; then
-        for val in $(echo "$vnts2_peer_servers" | tr '|' ' ' | tr ',' ' ' | tr '\n' ' '); do
+        for val in $(echo "$vnts2_peer_servers" | sed 's/\\n/ /g' | sed 's/\\r/ /g' | tr '|' ' ' | tr ',' ' ' | tr '\n' ' '); do
             peers_toml="${peers_toml}\"${val}\", "
         done
         peers_toml=$(echo "$peers_toml" | sed 's/, $//')
@@ -462,7 +462,7 @@ EOF
 
     echo "[custom_nets]" >> /koolshare/vnt2/server_config.toml
     if [ -n "$vnts2_custom_nets" ]; then
-        for pair in $(echo "$vnts2_custom_nets" | tr '|' ' ' | tr '\n' ' '); do
+        for pair in $(echo "$vnts2_custom_nets" | sed 's/\\n/ /g' | sed 's/\\r/ /g' | tr '|' ' ' | tr '\n' ' '); do
             k="${pair%%=*}"
             v="${pair#*=}"
             if [ -n "$k" ] && [ -n "$v" ]; then
