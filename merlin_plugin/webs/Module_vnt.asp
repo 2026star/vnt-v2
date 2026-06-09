@@ -143,7 +143,7 @@ var params_input = [
     "vnt_token", "vnt_ipmode", "vnt_static_ip", "vnt_desvice_id", "vnt_desvice_name",
     "vnt_localadd", "vnt_peeradd", "vnt_serveraddr", "vnt_stunaddr", "vnt_tun_name",
     "vnt_relay_enable", "vnt_mtu", "vnt_key",
-    "vnt_compressor", "vnt_path", "vnt_mapping",
+    "vnt_path", "vnt_mapping", "vnt_cert_mode", "vnt_tunnel_port",
     "vnts_path",
     "vnts2_token", "vnts2_tcp_bind", "vnts2_quic_bind", "vnts2_ws_bind",
     "vnts2_network", "vnts2_lease_duration", "vnts2_web_bind",
@@ -151,8 +151,8 @@ var params_input = [
     "vnts2_whitelist", "vnts2_server_quic_bind", "vnts2_peer_servers", "vnts2_custom_nets"
 ];
 var params_check = [
-    "vnt_enable", "vnts_enable", "vnt_proxy_enable", "vnt_finger_enable",
-    "vnt_first_latency_enable", "vnt_fec", "vnt_allow_mapping",
+    "vnt_enable", "vnts_enable", "vnt_proxy_enable", "vnt_compressor",
+    "vnt_first_latency_enable", "vnt_fec", "vnt_allow_mapping", "vnt_no_tun",
     "vnts2_persistence"
 ];
 function initial() {
@@ -193,9 +193,9 @@ function conf2obj() {
 				// Provide defaults for specific fields
 				if (params_input[i] === "vnt_serveraddr") val = "tcp://127.0.0.1:29872";
 				else if (params_input[i] === "vnt_tun_name") val = "vnt-tun";
-				else if (params_input[i] === "vnt_relay_enable") val = "all";
+				else if (params_input[i] === "vnt_relay_enable") val = "p2p";
 				else if (params_input[i] === "vnt_ipmode") val = "dhcp";
-				else if (params_input[i] === "vnt_compressor") val = "off";
+				else if (params_input[i] === "vnt_cert_mode") val = "skip";
 				else if (params_input[i] === "vnts2_tcp_bind") val = "0.0.0.0:29872";
 				else if (params_input[i] === "vnts2_quic_bind") val = "0.0.0.0:29872";
 				else if (params_input[i] === "vnts2_ws_bind") val = "0.0.0.0:29872";
@@ -268,8 +268,11 @@ function buildswitch() {
 	$("#vnt_proxy_enable").click(function() {
 		document.form.vnt_proxy_enable.value = E('vnt_proxy_enable').checked ? 1 : 0;
 	});
-	$("#vnt_finger_enable").click(function() {
-		document.form.vnt_finger_enable.value = E('vnt_finger_enable').checked ? 1 : 0;
+	$("#vnt_compressor").click(function() {
+		document.form.vnt_compressor.value = E('vnt_compressor').checked ? 1 : 0;
+	});
+	$("#vnt_no_tun").click(function() {
+		document.form.vnt_no_tun.value = E('vnt_no_tun').checked ? 1 : 0;
 	});
 	$("#vnt_first_latency_enable").click(function() {
 		document.form.vnt_first_latency_enable.value = E('vnt_first_latency_enable').checked ? 1 : 0;
@@ -921,10 +924,10 @@ function openssHint(itemNum) {
 		statusmenu = "用服务端通信的数据加密，采用rsa+aes256gcm加密客户端和服务端之间通信的数据可以避免token泄漏、中间人攻击，<br>这是服务器和客户端之间的加密";
 		_caption = " 客户端与服务端之间的加密";
 	} else if (itemNum == 25) {
-		statusmenu = "开启数据指纹校验，可增加安全性，如果服务端开启指纹校验，则客户端也必须开启，开启会损耗一部分性能。<br>注意：默认情况下服务端不会对中转的数据做校验，如果要对中转的数据做校验，则需要客户端、服务端都开启此参数";
-		_caption = " 数据指纹校验";
+		statusmenu = "证书安全校验模式，支持填入指纹(finger:xxx)或 standard，留空则跳过验证(skip)。<br>开启可增加安全性，但会损耗一部分性能。注意：如果服务端开启校验，则客户端也必须开启。";
+		_caption = " 证书安全校验";
 	} else if (itemNum == 26) {
-		statusmenu = "自动:根据当前的网络环境自动选择使用服务器或者客户端进行中继转发还是P2P直连<br>转发:仅中继转发模式，会禁止打洞/p2p直连，只使用服务器转发<br>p2p:仅直连模式，会禁止网络数据从服务器/客户端转发，只会使用服务器转发控制包<br>在网络环境很差时，不使用p2p只使用服务器中继转发效果可能更好（可以配合服务器的tcp协议一起使用）";
+		statusmenu = "p2p(直连): 默认模式，优先打洞直连，如果打洞失败再走服务器转发<br>转发(relay): 仅中继转发模式，会禁止打洞/p2p直连，所有数据只使用服务器转发<br>在网络环境很差时，不使用p2p只使用服务器中继转发效果可能更好";
 		_caption = "连接模式";
 	} else if (itemNum == 27) {
 		statusmenu = "启用后优先使用低延迟通道，默认情况下优先使用p2p通道，某些情况下可能p2p比客户端中继延迟更高，可启用此参数进行优化传输";
@@ -972,8 +975,14 @@ function openssHint(itemNum) {
 		statusmenu = "端口映射，格式为：协议://本地监听地址-目标虚拟IP-目标映射地址。可以设置多个映射地址，以换行或逗号分隔，例如：<font color='#F46'>tcp://0.0.0.0:81-10.26.0.10-10.26.0.10:80</font>";
 		_caption = "端口映射";
 	} else if (itemNum == 42) {
-		statusmenu = "启用压缩，默认仅支持lz4压缩，开启压缩后，如果数据包长度大于等于128，则会使用压缩，否则还是会按原数据发送<br><font color='#F46'>也支持开启zstd压缩，但是需要自行编译，编译时加入参数--features zstd 确保程序已支持zstd压缩再选用zstd</font><br>如果宽度速度比较慢，可以考虑使用高级别的压缩";
+		statusmenu = "启用压缩，v2 仅支持开启/关闭 lz4 压缩。开启压缩后，如果数据包长度大于等于128，则会使用压缩，否则还是会按原数据发送。";
 		_caption = "数据压缩";
+	} else if (itemNum == 43) {
+		statusmenu = "禁用虚拟网卡。开启后 VNT 只做流量出口或端口映射，不再创建本地的 tun 设备。";
+		_caption = "禁用虚拟网卡";
+	} else if (itemNum == 44) {
+		statusmenu = "指定隧道通信端口，用于 P2P 通信。默认为 0（系统自动分配）。如果您有特殊网络需求（如固定 NAT 映射），可以手动指定端口。";
+		_caption = "隧道通信端口";
 	} else if (itemNum == 50) {
 		statusmenu = "设定客户端连接服务端时的验证密码（Server Token），非空时所有接入此服务端的客户端必须持有相同的密码。";
 		_caption = "连接验证密码";
@@ -1286,12 +1295,21 @@ function get_installog(s) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(42)">开启 LZ4 数据压缩 (compress)</a></th>
-                                            <td>
-                                                <select id="vnt_compressor" name="vnt_compressor" style="width:165px;margin:0px 0px 0px 2px;" value="off" class="input_option" >
-                                                    <option value="off">关闭</option>
-                                                    <option value="lz4">开启 LZ4 压缩</option>
-                                                </select>
+                                            <th>
+                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(42)">开启 LZ4 数据压缩 (compress)</a></label>
+                                            </th>
+                                            <td colspan="2">
+                                                <div class="switch_field" style="display:table-cell;float: left;">
+                                                    <label for="vnt_compressor">
+                                                        <input id="vnt_compressor" class="switch" type="checkbox" style="display: none;">
+                                                        <div class="switch_container" >
+                                                            <div class="switch_bar"></div>
+                                                            <div class="switch_circle transition_style">
+                                                                <div></div>
+                                                            </div>
+                                                        </div>
+                                                    </label>
+                                                </div>
                                             </td>
                                         </tr>
                                         <tr>
@@ -1337,19 +1355,13 @@ function get_installog(s) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(16)">最大传输单元 (MTU)</a></th>
-                                            <td>
-                                                <input type="text" oninput="this.value=this.value.replace(/[^\d]/g, '')" class="input_ss_table" id="vnt_mtu" title="最大传输单元（MTU）。留空使用自动默认值" name="vnt_mtu" placeholder="默认自动" />
-                                            </td>
-                                        </tr>
-                                        <tr>
                                             <th>
-                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(25)">证书指纹安全校验 (cert_mode)</a></label>
+                                                <label><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(43)">禁用虚拟网卡 (no_tun)</a></label>
                                             </th>
                                             <td colspan="2">
                                                 <div class="switch_field" style="display:table-cell;float: left;">
-                                                    <label for="vnt_finger_enable">
-                                                        <input id="vnt_finger_enable" class="switch" type="checkbox" style="display: none;">
+                                                    <label for="vnt_no_tun">
+                                                        <input id="vnt_no_tun" class="switch" type="checkbox" style="display: none;">
                                                         <div class="switch_container" >
                                                             <div class="switch_bar"></div>
                                                             <div class="switch_circle transition_style">
@@ -1358,6 +1370,24 @@ function get_installog(s) {
                                                         </div>
                                                     </label>
                                                 </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(44)">隧道通信端口 (tunnel_port)</a></th>
+                                            <td>
+                                                <input type="text" oninput="this.value=this.value.replace(/[^\d]/g, '')" class="input_ss_table" id="vnt_tunnel_port" title="隧道端口，用于P2P通信 (默认为0，自动分配)" name="vnt_tunnel_port" placeholder="默认为0 (自动分配)" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(16)">最大传输单元 (MTU)</a></th>
+                                            <td>
+                                                <input type="text" oninput="this.value=this.value.replace(/[^\d]/g, '')" class="input_ss_table" id="vnt_mtu" title="最大传输单元（MTU）。留空使用自动默认值" name="vnt_mtu" placeholder="默认自动" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(25)">证书安全校验 (cert_mode)</a></th>
+                                            <td>
+                                                <input type="text" class="input_ss_table" id="vnt_cert_mode" title="留空则跳过验证(skip)，或输入standard，或输入finger:指纹" name="vnt_cert_mode" placeholder="留空跳过验证，或输入 finger:xxxx..." />
                                             </td>
                                         </tr>
                                         <tr>
@@ -1382,8 +1412,7 @@ function get_installog(s) {
                                             <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(26)">连接模式 (no_punch)</a></th>
                                             <td>
                                                 <select id="vnt_relay_enable" name="vnt_relay_enable" style="width:165px;margin:0px 0px 0px 2px;" class="input_option">
-                                                    <option value="all" selected>自动 (P2P + Relay)</option>
-                                                    <option value="p2p">仅打洞 (P2P)</option>
+                                                    <option value="p2p" selected>仅打洞 (P2P)</option>
                                                     <option value="relay">仅限转发 (Relay)</option>
                                                 </select>
                                             </td>

@@ -14,7 +14,9 @@ vnts_log=/tmp/vnts2.log
 vnt_enable=`dbus get vnt_enable`
 vnts_enable=`dbus get vnts_enable`
 vnt_proxy_enable=`dbus get vnt_proxy_enable`
-vnt_finger_enable=`dbus get vnt_finger_enable`
+vnt_cert_mode=`dbus get vnt_cert_mode`
+vnt_no_tun=`dbus get vnt_no_tun`
+vnt_tunnel_port=`dbus get vnt_tunnel_port`
 vnt_relay_enable=`dbus get vnt_relay_enable`
 vnt_first_latency_enable=`dbus get vnt_first_latency_enable`
 vnt_tun_name=`dbus get vnt_tun_name`
@@ -100,16 +102,16 @@ fun_nat_start(){
 }
 
 check_and_rotate_logs(){
-    # 限制客户端日志大小 (2MB)
-    if [ -f "$vnt_log" ] && [ $(wc -c < "$vnt_log") -gt 2097152 ]; then
-        echo "【$(TZ=UTC-8 date -R +%Y年%m月%d日\ %X)】: 客户端日志过大，自动截断保留最新记录..." > /tmp/vnt_log_tmp
-        tail -n 2000 "$vnt_log" >> /tmp/vnt_log_tmp
+    # 限制客户端日志最多100条
+    if [ -f "$vnt_log" ] && [ $(wc -l < "$vnt_log") -gt 100 ]; then
+        echo "【$(TZ=UTC-8 date -R +%Y年%m月%d日\ %X)】: 客户端日志过多，自动清理保留最新100条..." > /tmp/vnt_log_tmp
+        tail -n 100 "$vnt_log" >> /tmp/vnt_log_tmp
         mv /tmp/vnt_log_tmp "$vnt_log"
     fi
-    # 限制服务端日志大小 (2MB)
-    if [ -f "$vnts_log" ] && [ $(wc -c < "$vnts_log") -gt 2097152 ]; then
-        echo "【$(TZ=UTC-8 date -R +%Y年%m月%d日\ %X)】: 服务端日志过大，自动截断保留最新记录..." > /tmp/vnts_log_tmp
-        tail -n 2000 "$vnts_log" >> /tmp/vnts_log_tmp
+    # 限制服务端日志最多100条
+    if [ -f "$vnts_log" ] && [ $(wc -l < "$vnts_log") -gt 100 ]; then
+        echo "【$(TZ=UTC-8 date -R +%Y年%m月%d日\ %X)】: 服务端日志过多，自动清理保留最新100条..." > /tmp/vnts_log_tmp
+        tail -n 100 "$vnts_log" >> /tmp/vnts_log_tmp
         mv /tmp/vnts_log_tmp "$vnts_log"
     fi
 }
@@ -122,11 +124,11 @@ fun_crontab(){
     if [ "${vnts_enable}" != "1" ] || [ "${vnts_cron_time}"x = "0"x ];then
         [ -n "$(cru l | grep vnts_monitor)" ] && cru d vnts_monitor
     fi
-    # 自动清理日志定时任务 (每30分钟执行一次)
+    # 自动清理日志定时任务 (每10分钟执行一次)
     if [ "${vnt_enable}" != "1" ] && [ "${vnts_enable}" != "1" ]; then
         [ -n "$(cru l | grep vnt_log_clean)" ] && cru d vnt_log_clean
     else
-        [ -z "$(cru l | grep vnt_log_clean)" ] && cru a vnt_log_clean "*/30 * * * * /bin/sh /koolshare/scripts/vnt_config.sh clean_log"
+        [ -z "$(cru l | grep vnt_log_clean)" ] && cru a vnt_log_clean "*/10 * * * * /bin/sh /koolshare/scripts/vnt_config.sh clean_log"
     fi
      if [ "${vnt_cron_hour_min}" == "min" ] && [ "${vnt_cron_time}"x != "0"x ] ; then
         if [ "${vnt_cron_type}" == "watch" ]; then
@@ -327,8 +329,7 @@ write_client_config(){
         done
         mapping_toml=$(echo "$mapping_toml" | sed 's/, $//')
     fi
-
-    use_channel_val="auto"
+    use_channel_val="p2p"
     no_punch_val="false"
     if [ "$vnt_relay_enable" = "relay" ]; then
         use_channel_val="relay"
@@ -344,7 +345,7 @@ write_client_config(){
     fi
 
     compress_val="false"
-    if [ "$vnt_compressor" != "off" ] && [ -n "$vnt_compressor" ]; then
+    if [ "$vnt_compressor" = "1" ]; then
         compress_val="true"
     fi
 
@@ -358,9 +359,9 @@ write_client_config(){
         allow_mapping_val="true"
     fi
 
-    cert_mode_val="skip"
-    if [ "$vnt_finger_enable" = "1" ]; then
-        cert_mode_val="finger"
+    cert_mode_val="${vnt_cert_mode:-skip}"
+    if [ -z "$cert_mode_val" ]; then
+        cert_mode_val="skip"
     fi
 
     no_nat_val="false"
@@ -368,20 +369,29 @@ write_client_config(){
         no_nat_val="true"
     fi
 
+    no_tun_val="false"
+    if [ "$vnt_no_tun" = "1" ]; then
+        no_tun_val="true"
+    fi
+
     cat > /koolshare/vnt2/client_config.toml <<EOF
 network_code = "${vnt_token}"
 server = [${servers_toml}]
 no_punch = ${no_punch_val}
-use_channel = "${use_channel_val}"
 rtx = ${rtx_val}
 compress = ${compress_val}
 fec = ${fec_val}
 allow_mapping = ${allow_mapping_val}
 cert_mode = "${cert_mode_val}"
 no_nat = ${no_nat_val}
+no_tun = ${no_tun_val}
 tun_name = "${vnt_tun_name:-vnt-tun}"
 ctrl_port = 11233
 EOF
+
+    if [ -n "$vnt_tunnel_port" ]; then
+        echo "tunnel_port = ${vnt_tunnel_port}" >> /koolshare/vnt2/client_config.toml
+    fi
 
     if [ "$vnt_ipmode" = "static" ] && [ -n "$vnt_static_ip" ]; then
         echo "ip = \"${vnt_static_ip}\"" >> /koolshare/vnt2/client_config.toml
