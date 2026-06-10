@@ -469,7 +469,8 @@ EOF
     fi
 
     if [ -n "$vnts2_token" ]; then
-        echo "server_token = \"${vnts2_token}\"" >> /koolshare/vnt2/server_config.toml
+        vnts2_token_clean=$(echo "$vnts2_token" | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        echo "server_token = \"${vnts2_token_clean}\"" >> /koolshare/vnt2/server_config.toml
     fi
     if [ -n "$vnts2_server_quic_bind" ]; then
         echo "server_quic_bind = \"${vnts2_server_quic_bind}\"" >> /koolshare/vnt2/server_config.toml
@@ -557,6 +558,9 @@ fun_start_vnt(){
 
 fun_start_vnts(){
      fun_nat_start
+     if [ "$vnts2_persistence" = "0" ]; then
+         rm -rf /koolshare/vnt2/vnts.db
+     fi
      [ -x "${vnts_path}" ] || chmod 755 ${vnts_path}
      
      vnts_ver=`$vnts_path --version 2>/dev/null | head -n 1 | awk '{print $2}'`
