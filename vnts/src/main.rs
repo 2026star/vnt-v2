@@ -1,7 +1,7 @@
 use crate::server::TurnConfig;
 use crate::server::control_server::service::ControlService;
 use crate::server::peer_server::PeerServerManager;
-use crate::utils::config::ConfigFile;
+use crate::utils::config::{ConfigFile, LoadedConfig};
 use clap::Parser;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -32,13 +32,25 @@ async fn main() {
     }
     utils::log::log_init("vnts2");
     log::info!("version: {:?}", env!("CARGO_PKG_VERSION"));
-    let conf = match ConfigFile::load_from(args.conf) {
+    let loaded = match ConfigFile::load_with_meta(args.conf) {
         Ok(conf) => conf,
         Err(e) => {
             log::error!("{e:?}");
             panic!("{e:?}")
         }
     };
+    let LoadedConfig {
+        path: config_path,
+        config: conf,
+        created_default,
+    } = loaded;
+    log::info!("Loaded config from {}", config_path.display());
+    if created_default {
+        log::warn!(
+            "Config file did not exist. A default config was created at {}",
+            config_path.display()
+        );
+    }
     if conf.persistence {
         if let Err(e) = server::control_server::db::init_db_pool().await {
             log::error!("{:?}", e);
@@ -65,12 +77,45 @@ async fn main() {
     };
 
     let web_bind = conf.web_bind;
-    let username = conf.username.unwrap_or("admin".to_string());
-    let password = conf.password.unwrap_or("admin".to_string());
+    let username = conf.username.unwrap_or_else(|| {
+        log::warn!(
+            "username is not set in {}. Falling back to default username 'admin'",
+            config_path.display()
+        );
+        "admin".to_string()
+    });
+    let password = conf.password.unwrap_or_else(|| {
+        log::warn!(
+            "password is not set in {}. Falling back to default password",
+            config_path.display()
+        );
+        "admin".to_string()
+    });
+    if let Some(bind_addr) = web_bind {
+        let using_default_credentials = username == "admin" && password == "admin";
+        log::info!(
+            "Web auth loaded for {} with username '{}'",
+            bind_addr,
+            username
+        );
+        if using_default_credentials {
+            log::warn!(
+                "Web auth is still using default credentials admin/admin from {}",
+                config_path.display()
+            );
+        }
+    }
+
+    log::info!(
+        "Loaded {} bootstrap networks and {} bootstrap secrets from config",
+        conf.custom_nets.len(),
+        conf.network_secrets.len()
+    );
 
     let control_service = ControlService::new(
-        conf.network,
         conf.custom_nets,
+        conf.network_secrets,
+        conf.white_list,
         Duration::from_secs(conf.lease_duration),
     )
     .await;
@@ -101,21 +146,29 @@ struct PeerConf {
 }
 
 async fn init_peer_manager(conf: &PeerConf, control_service: &ControlService) {
-    let server_token = conf.server_token.clone().unwrap_or_else(|| "default_token".to_string());
+    let server_token = conf
+        .server_token
+        .clone()
+        .unwrap_or_else(|| "default_token".to_string());
     let network_state_provider = control_service.get_network_state_provider().clone();
 
     let peer_manager = Arc::new(PeerServerManager::new(server_token, network_state_provider));
     control_service.set_peer_manager(peer_manager.clone());
 
     if let Some(server_quic_bind) = conf.server_quic_bind {
-        let (certs, key) = match crate::utils::cert::get_cert_and_key(conf.cert.clone(), conf.key.clone()) {
-            Ok((certs, key)) => (certs, key),
-            Err(e) => {
-                log::error!("Failed to load cert/key for peer server: {:?}", e);
-                panic!("{:?}", e)
-            }
-        };
-        if let Err(e) = peer_manager.clone().start_server(server_quic_bind, certs, key).await {
+        let (certs, key) =
+            match crate::utils::cert::get_cert_and_key(conf.cert.clone(), conf.key.clone()) {
+                Ok((certs, key)) => (certs, key),
+                Err(e) => {
+                    log::error!("Failed to load cert/key for peer server: {:?}", e);
+                    panic!("{:?}", e)
+                }
+            };
+        if let Err(e) = peer_manager
+            .clone()
+            .start_server(server_quic_bind, certs, key)
+            .await
+        {
             log::error!("Failed to start peer server: {:?}", e);
         } else {
             log::info!("Peer server started on {}", server_quic_bind);

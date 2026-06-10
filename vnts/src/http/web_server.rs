@@ -1,13 +1,13 @@
 use crate::ControlService;
 use crate::server::control_server::service::{DeviceInfoVO, NetworkInfoVO};
 use axum::{
+    Json, Router,
     body::Body,
     extract::{Path, Query, State},
-    http::{header, HeaderMap, Request, StatusCode, Uri},
+    http::{HeaderMap, Request, StatusCode, Uri, header},
     middleware::{self, Next},
     response::{IntoResponse, Response},
     routing::{delete, get, post, put},
-    Json, Router,
 };
 use jsonwebtoken::{DecodingKey, EncodingKey, Validation};
 use mime_guess::from_path;
@@ -205,6 +205,7 @@ struct CreateNetworkRequest {
     network_code: String,
     gateway: String,
     netmask: u8,
+    secret: String,
     lease_duration: Option<u64>,
 }
 
@@ -223,13 +224,17 @@ async fn create_network(
         return ApiResponse::<()>::err("无效的掩码").into_response();
     }
 
-    let lease_duration = body
-        .lease_duration
-        .map(std::time::Duration::from_secs);
+    let lease_duration = body.lease_duration.map(std::time::Duration::from_secs);
 
     match state
         .control_service
-        .add_network(body.network_code, gateway, body.netmask, lease_duration)
+        .add_network(
+            body.network_code,
+            gateway,
+            body.netmask,
+            lease_duration,
+            body.secret,
+        )
         .await
     {
         Ok(()) => ApiResponse::<()>::ok_msg("创建成功").into_response(),
@@ -241,6 +246,7 @@ async fn create_network(
 struct UpdateNetworkRequest {
     gateway: String,
     netmask: u8,
+    secret: String,
     lease_duration: u64,
 }
 
@@ -264,7 +270,13 @@ async fn update_network(
 
     match state
         .control_service
-        .update_network(&network_code, gateway, body.netmask, lease_duration)
+        .update_network(
+            &network_code,
+            gateway,
+            body.netmask,
+            lease_duration,
+            body.secret,
+        )
         .await
     {
         Ok(()) => ApiResponse::<()>::ok_msg("更新成功").into_response(),
@@ -392,7 +404,7 @@ async fn static_handler(uri: Uri) -> impl IntoResponse {
             [(header::CONTENT_TYPE, mime.as_ref())],
             Body::from(content.data),
         )
-        .into_response();
+            .into_response();
     }
 
     (StatusCode::NOT_FOUND, "404 Not Found").into_response()

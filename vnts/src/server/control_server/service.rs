@@ -1,7 +1,12 @@
 use crate::protocol::control_message::{RegRequestMsg, RegistrationMode};
 use crate::server::control_server::db;
 use crate::server::control_server::db::{NetworkRecord, NetworkSource};
-use crate::server::network_state_provider::{i64_to_system_time, NetworkState, NetworkStateProvider};
+use crate::server::network_state_provider::{
+    NetworkState, NetworkStateProvider, i64_to_system_time,
+};
+use crate::utils::config::{
+    DEFAULT_NETWORK_CODE, validate_network_code_value, validate_network_secret_value,
+};
 use anyhow::{Context, bail};
 use bytes::Bytes;
 use dashmap::DashMap;
@@ -9,7 +14,7 @@ use ipnet::Ipv4Net;
 use parking_lot::RwLock;
 use rand::RngCore;
 use serde::Serialize;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::net::Ipv4Addr;
 use std::sync::Arc;
 use std::time::SystemTime;
@@ -32,10 +37,16 @@ pub struct NetworkConfig {
 }
 
 #[derive(Clone)]
+struct ManagedNetwork {
+    config: NetworkConfig,
+    secret: String,
+}
+
+#[derive(Clone)]
 pub struct ControlService {
-    default_net: Ipv4Net,
     default_lease_duration: Duration,
-    db_nets: Arc<RwLock<HashMap<String, NetworkConfig>>>,
+    db_nets: Arc<RwLock<HashMap<String, ManagedNetwork>>>,
+    white_list: Arc<HashSet<String>>,
     network_state_provider: NetworkStateProvider,
     network_init_locks: Arc<DashMap<String, Arc<tokio::sync::Mutex<()>>>>,
     peer_manager: Arc<RwLock<Option<Arc<crate::server::peer_server::PeerServerManager>>>>,
@@ -43,18 +54,18 @@ pub struct ControlService {
 
 impl ControlService {
     pub async fn new(
-        default_net: Ipv4Net,
         custom_nets: HashMap<String, Ipv4Net>,
+        network_secrets: HashMap<String, String>,
+        white_list: HashSet<String>,
         lease_duration: Duration,
     ) -> Self {
         let network_states = Arc::new(DashMap::new());
-
-        Self::save_config_networks_to_db(&default_net, &custom_nets, lease_duration).await;
-        let db_nets = Self::load_networks_from_db().await;
+        let db_nets =
+            Self::load_or_initialize_networks(custom_nets, network_secrets, lease_duration).await;
 
         let service = Self {
-            default_net,
             default_lease_duration: lease_duration,
+            white_list: Arc::new(white_list),
             db_nets: Arc::new(RwLock::new(db_nets)),
             network_state_provider: NetworkStateProvider::new(network_states),
             network_init_locks: Arc::new(DashMap::new()),
@@ -70,9 +81,65 @@ impl ControlService {
         service
     }
 
-    async fn save_config_networks_to_db(
-        _default_net: &Ipv4Net,
+    async fn load_or_initialize_networks(
+        custom_nets: HashMap<String, Ipv4Net>,
+        network_secrets: HashMap<String, String>,
+        lease_duration: Duration,
+    ) -> HashMap<String, ManagedNetwork> {
+        if !db::db_pool_initialized() {
+            return Self::build_networks_from_config(custom_nets, network_secrets, lease_duration);
+        }
+
+        let mut records = Self::load_network_records_from_db().await;
+        if records.is_empty() {
+            Self::seed_config_networks_to_db(&custom_nets, &network_secrets, lease_duration).await;
+            records = Self::load_network_records_from_db().await;
+        } else if Self::backfill_missing_secrets_from_config(&records, &network_secrets).await {
+            records = Self::load_network_records_from_db().await;
+        }
+
+        if records.is_empty() {
+            log::warn!("No networks found in DB after initialization, falling back to config");
+            return Self::build_networks_from_config(custom_nets, network_secrets, lease_duration);
+        }
+
+        Self::managed_networks_from_records(records)
+    }
+
+    fn build_networks_from_config(
+        custom_nets: HashMap<String, Ipv4Net>,
+        network_secrets: HashMap<String, String>,
+        lease_duration: Duration,
+    ) -> HashMap<String, ManagedNetwork> {
+        custom_nets
+            .into_iter()
+            .filter_map(|(code, net)| {
+                let Some(secret) = network_secrets.get(&code).cloned() else {
+                    log::error!(
+                        "Missing secret for network '{}' while building config fallback",
+                        code
+                    );
+                    return None;
+                };
+
+                Some((
+                    code,
+                    ManagedNetwork {
+                        config: NetworkConfig {
+                            net,
+                            lease_duration,
+                            source: NetworkSource::Config,
+                        },
+                        secret,
+                    },
+                ))
+            })
+            .collect()
+    }
+
+    async fn seed_config_networks_to_db(
         custom_nets: &HashMap<String, Ipv4Net>,
+        network_secrets: &HashMap<String, String>,
         lease_duration: Duration,
     ) {
         let now = std::time::SystemTime::now()
@@ -82,11 +149,19 @@ impl ControlService {
         let lease_secs = lease_duration.as_secs() as i64;
 
         for (code, net) in custom_nets {
+            let Some(secret) = network_secrets.get(code) else {
+                log::error!(
+                    "Skip seeding network '{}' because its secret is missing",
+                    code
+                );
+                continue;
+            };
             let gateway = Ipv4Addr::from(u32::from(net.network()) + 1);
             let record = NetworkRecord {
                 network_code: code.clone(),
                 gateway: gateway.to_string(),
                 netmask: net.prefix_len(),
+                secret: secret.clone(),
                 lease_duration: lease_secs,
                 source: NetworkSource::Config,
                 created_at: now,
@@ -99,27 +174,81 @@ impl ControlService {
         }
     }
 
-    async fn load_networks_from_db() -> HashMap<String, NetworkConfig> {
-        let mut nets = HashMap::new();
-        match db::load_all_networks().await {
-            Ok(records) => {
-                for record in records {
-                    if let Some(net) = record.to_ipv4_net() {
-                        nets.insert(
-                            record.network_code,
-                            NetworkConfig {
-                                net,
-                                lease_duration: Duration::from_secs(record.lease_duration as u64),
-                                source: record.source,
-                            },
-                        );
-                    }
+    async fn backfill_missing_secrets_from_config(
+        records: &[NetworkRecord],
+        network_secrets: &HashMap<String, String>,
+    ) -> bool {
+        let mut updated = false;
+
+        for record in records {
+            if !record.secret.trim().is_empty() {
+                continue;
+            }
+
+            let Some(secret) = network_secrets.get(&record.network_code) else {
+                continue;
+            };
+
+            let mut updated_record = record.clone();
+            updated_record.secret = secret.clone();
+
+            match db::save_network(&updated_record).await {
+                Ok(()) => {
+                    updated = true;
+                    log::info!(
+                        "Backfilled missing secret for network '{}' from config",
+                        record.network_code
+                    );
+                }
+                Err(e) => {
+                    log::error!(
+                        "Failed to backfill secret for network '{}': {}",
+                        record.network_code,
+                        e
+                    );
                 }
             }
+        }
+
+        updated
+    }
+
+    async fn load_network_records_from_db() -> Vec<NetworkRecord> {
+        match db::load_all_networks().await {
+            Ok(records) => records,
             Err(e) => {
                 log::error!("Failed to load networks from DB: {}", e);
+                Vec::new()
             }
         }
+    }
+
+    fn managed_networks_from_records(
+        records: Vec<NetworkRecord>,
+    ) -> HashMap<String, ManagedNetwork> {
+        let mut nets = HashMap::new();
+
+        for record in records {
+            if let Some(net) = record.to_ipv4_net() {
+                nets.insert(
+                    record.network_code,
+                    ManagedNetwork {
+                        config: NetworkConfig {
+                            net,
+                            lease_duration: Duration::from_secs(record.lease_duration as u64),
+                            source: record.source,
+                        },
+                        secret: record.secret,
+                    },
+                );
+            } else {
+                log::error!(
+                    "Skip network '{}' because gateway/netmask in DB is invalid",
+                    record.network_code
+                );
+            }
+        }
+
         nets
     }
 
@@ -129,14 +258,12 @@ impl ControlService {
         sender: Sender<Bytes>,
     ) -> anyhow::Result<Session> {
         reg_req.check()?;
+        self.validate_registration(&reg_req)?;
         let network_code = reg_req.network_code.clone();
         let registration_mode = reg_req.registration_mode;
-
-        let is_new_network = !self.db_nets.read().contains_key(&reg_req.network_code);
-        let config = self.network_config(&reg_req.network_code, reg_req.ip);
-
-        if is_new_network {
-            self.db_nets.write().insert(reg_req.network_code.clone(), config);
+        let config = self.network_config(&reg_req.network_code)?;
+        if !self.white_list.is_empty() && !self.white_list.contains(&network_code) {
+            bail!("network_code '{}' is not in white_list", network_code);
         }
 
         let state = self
@@ -147,13 +274,14 @@ impl ControlService {
             let random_id = rand::rng().next_u64();
             let device_id = reg_req.device_id.clone();
 
-            let (ip, _old_ip, entry) = match state.allocate_ip_and_get_entry(reg_req, random_id, sender) {
-                Ok(rs) => rs,
-                Err(e) => {
-                    log::warn!("network_code={network_code},device_id={device_id},e={e:?}");
-                    return Err(e);
-                }
-            };
+            let (ip, _old_ip, entry) =
+                match state.allocate_ip_and_get_entry(reg_req, random_id, sender) {
+                    Ok(rs) => rs,
+                    Err(e) => {
+                        log::warn!("network_code={network_code},device_id={device_id},e={e:?}");
+                        return Err(e);
+                    }
+                };
 
             (
                 Session {
@@ -172,27 +300,6 @@ impl ControlService {
             )
         };
 
-        if is_new_network {
-            let gateway = Ipv4Addr::from(u32::from(config.net.network()) + 1);
-            let now = std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap_or_default()
-                .as_secs() as i64;
-            let record = NetworkRecord {
-                network_code: network_code.clone(),
-                gateway: gateway.to_string(),
-                netmask: config.net.prefix_len(),
-                lease_duration: config.lease_duration.as_secs() as i64,
-                source: NetworkSource::DeviceRegister,
-                created_at: now,
-            };
-            tokio::spawn(async move {
-                if let Err(e) = db::save_network(&record).await {
-                    log::error!("Failed to save new network: {:?}", e);
-                }
-            });
-        }
-
         if matches!(registration_mode, RegistrationMode::Normal) {
             if let Some(entry) = entry {
                 let nc = network_code.clone();
@@ -208,20 +315,46 @@ impl ControlService {
         Ok(session)
     }
 
-    fn network_config(&self, network_code: &str, ip: Option<Ipv4Addr>) -> NetworkConfig {
-        if let Some(config) = self.db_nets.read().get(network_code) {
-            return *config;
-        }
-        let net = if let Some(ip) = ip {
-            Ipv4Net::new_assert(Ipv4Net::new_assert(ip, 24).network(), 24)
-        } else {
-            self.default_net
+    fn network_config(&self, network_code: &str) -> anyhow::Result<NetworkConfig> {
+        self.db_nets
+            .read()
+            .get(network_code)
+            .map(|network| network.config)
+            .ok_or_else(|| anyhow::anyhow!("network_code '{}' is not allowed", network_code))
+    }
+
+    fn build_network_from_gateway(gateway: Ipv4Addr, netmask: u8) -> anyhow::Result<Ipv4Net> {
+        let network_ip = u32::from(gateway)
+            .checked_sub(1)
+            .context("gateway must be the first usable IP in the subnet")?;
+        Ipv4Net::new(Ipv4Addr::from(network_ip), netmask).context("Invalid network")
+    }
+
+    fn validate_registration(&self, reg_req: &RegRequestMsg) -> anyhow::Result<()> {
+        let networks = self.db_nets.read();
+        let Some(network) = networks.get(&reg_req.network_code) else {
+            bail!(
+                "network_code '{}' is not allowed by server configuration or database",
+                reg_req.network_code
+            );
         };
-        NetworkConfig {
-            net,
-            lease_duration: self.default_lease_duration,
-            source: NetworkSource::DeviceRegister,
+        validate_network_secret_value(&reg_req.network_code, &network.secret)?;
+
+        let Some(provided_secret) = reg_req.key_sign.as_deref() else {
+            bail!(
+                "network_code '{}' requires a network secret",
+                reg_req.network_code
+            );
+        };
+
+        if provided_secret != network.secret {
+            bail!(
+                "invalid network secret for network_code '{}'",
+                reg_req.network_code
+            );
         }
+
+        Ok(())
     }
 
     /// DCL: 获取或创建 NetworkState
@@ -268,7 +401,10 @@ impl ControlService {
             .map(|v| v.key().clone())
             .collect();
         for network_code in keys {
-            let option = self.network_state_provider.get(&network_code).map(|v| v.clone());
+            let option = self
+                .network_state_provider
+                .get(&network_code)
+                .map(|v| v.clone());
             if let Some(state) = option {
                 if !state.is_empty() {
                     continue;
@@ -377,12 +513,20 @@ impl ControlService {
         gateway: Ipv4Addr,
         netmask: u8,
         lease_duration: Option<Duration>,
+        secret: String,
     ) -> anyhow::Result<()> {
+        validate_network_code_value(&network_code, "network_code")?;
+        validate_network_secret_value(&network_code, &secret)?;
+        if self.db_nets.read().contains_key(&network_code) {
+            bail!("network_code '{}' already exists", network_code);
+        }
+
         if self.db_nets.read().contains_key(&network_code) {
             bail!("网络编号 '{}' 已存在", network_code);
         }
 
         let lease_duration = lease_duration.unwrap_or(self.default_lease_duration);
+        let net = Self::build_network_from_gateway(gateway, netmask)?;
         let now = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap_or_default()
@@ -392,6 +536,7 @@ impl ControlService {
             network_code: network_code.clone(),
             gateway: gateway.to_string(),
             netmask,
+            secret: secret.clone(),
             lease_duration: lease_duration.as_secs() as i64,
             source: NetworkSource::Manual,
             created_at: now,
@@ -399,14 +544,15 @@ impl ControlService {
 
         db::save_network(&record).await?;
 
-        let network_ip = Ipv4Addr::from(u32::from(gateway) - 1);
-        let net = Ipv4Net::new(network_ip, netmask).context("Invalid network")?;
         self.db_nets.write().insert(
             network_code,
-            NetworkConfig {
-                net,
-                lease_duration,
-                source: NetworkSource::Manual,
+            ManagedNetwork {
+                config: NetworkConfig {
+                    net,
+                    lease_duration,
+                    source: NetworkSource::Manual,
+                },
+                secret,
             },
         );
 
@@ -419,12 +565,14 @@ impl ControlService {
         gateway: Ipv4Addr,
         netmask: u8,
         lease_duration: Duration,
+        secret: String,
     ) -> anyhow::Result<()> {
+        validate_network_secret_value(network_code, &secret)?;
         let original_source = self
             .db_nets
             .read()
             .get(network_code)
-            .map(|c| c.source)
+            .map(|c| c.config.source)
             .ok_or_else(|| anyhow::anyhow!("网络编号 '{}' 不存在", network_code))?;
 
         if db::network_has_devices(network_code).await? {
@@ -442,18 +590,21 @@ impl ControlService {
             network_code,
             &gateway.to_string(),
             netmask,
+            &secret,
             lease_duration.as_secs() as i64,
         )
         .await?;
 
-        let network_ip = Ipv4Addr::from(u32::from(gateway) - 1);
-        let net = Ipv4Net::new(network_ip, netmask).context("Invalid network")?;
+        let net = Self::build_network_from_gateway(gateway, netmask)?;
         self.db_nets.write().insert(
             network_code.to_string(),
-            NetworkConfig {
-                net,
-                lease_duration,
-                source: original_source,
+            ManagedNetwork {
+                config: NetworkConfig {
+                    net,
+                    lease_duration,
+                    source: original_source,
+                },
+                secret,
             },
         );
 
@@ -463,6 +614,10 @@ impl ControlService {
     }
 
     pub async fn delete_network(&self, network_code: &str) -> anyhow::Result<()> {
+        if network_code == DEFAULT_NETWORK_CODE {
+            bail!("the default network cannot be deleted");
+        }
+
         if !self.db_nets.read().contains_key(network_code) {
             bail!("网络编号 '{}' 不存在", network_code);
         }
@@ -486,11 +641,7 @@ impl ControlService {
         Ok(())
     }
 
-    pub async fn delete_device(
-        &self,
-        network_code: &str,
-        device_id: &str,
-    ) -> anyhow::Result<()> {
+    pub async fn delete_device(&self, network_code: &str, device_id: &str) -> anyhow::Result<()> {
         if let Some(state) = self.network_state_provider.get(network_code) {
             if state.is_device_online(device_id) {
                 bail!("设备在线，无法删除");
@@ -506,11 +657,15 @@ impl ControlService {
 
 impl ControlService {
     pub fn get_network_codes(&self) -> Vec<String> {
-        self.db_nets.read().keys().cloned().collect()
+        let mut codes: Vec<String> = self.db_nets.read().keys().cloned().collect();
+        codes.sort();
+        codes
     }
 
     pub fn get_network_state(&self, network_code: &str) -> Option<Arc<NetworkState>> {
-        self.network_state_provider.get(network_code).map(|s| s.clone())
+        self.network_state_provider
+            .get(network_code)
+            .map(|s| s.clone())
     }
 
     pub fn set_peer_manager(&self, manager: Arc<crate::server::peer_server::PeerServerManager>) {
@@ -521,17 +676,16 @@ impl ControlService {
         self.peer_manager.read().clone()
     }
 
-
     pub fn get_network_state_provider(&self) -> &NetworkStateProvider {
         &self.network_state_provider
     }
 
     pub fn get_network_info(&self) -> Vec<NetworkInfoVO> {
         let db_nets = self.db_nets.read();
-        db_nets
+        let mut networks: Vec<NetworkInfoVO> = db_nets
             .iter()
-            .map(|(code, config)| {
-                let gateway = Ipv4Addr::from(u32::from(config.net.network()) + 1);
+            .map(|(code, network)| {
+                let gateway = Ipv4Addr::from(u32::from(network.config.net.network()) + 1);
                 let (all_count, online_count) = self
                     .network_state_provider
                     .get(code)
@@ -541,15 +695,20 @@ impl ControlService {
                 NetworkInfoVO {
                     network_code: code.clone(),
                     gateway,
-                    netmask: config.net.prefix_len(),
-                    net: config.net,
-                    lease_duration: config.lease_duration.as_secs(),
-                    source: config.source,
+                    netmask: network.config.net.prefix_len(),
+                    net: network.config.net,
+                    secret: network.secret.clone(),
+                    lease_duration: network.config.lease_duration.as_secs(),
+                    source: network.config.source,
+                    is_default: code == DEFAULT_NETWORK_CODE,
+                    can_delete: code != DEFAULT_NETWORK_CODE,
                     all_count,
                     online_count,
                 }
             })
-            .collect()
+            .collect();
+        networks.sort_by(|a, b| a.network_code.cmp(&b.network_code));
+        networks
     }
 
     pub async fn get_device_info(&self, network_code: &str) -> Option<Vec<DeviceInfoVO>> {
@@ -558,7 +717,8 @@ impl ControlService {
         } else {
             match db::load_all_devices(network_code).await {
                 Ok(records) => {
-                    let format = format_description!("[year]-[month]-[day] [hour]:[minute]:[second]");
+                    let format =
+                        format_description!("[year]-[month]-[day] [hour]:[minute]:[second]");
                     records
                         .into_iter()
                         .map(|r| {
@@ -570,7 +730,9 @@ impl ControlService {
                                 device_version: r.device_version,
                                 ip: r.ip.as_ref().and_then(|s| s.parse().ok()),
                                 status: "Offline".to_string(),
-                                last_connect_time: last_connect_time.format(&format).unwrap_or_default(),
+                                last_connect_time: last_connect_time
+                                    .format(&format)
+                                    .unwrap_or_default(),
                                 disconnect_time: None,
                                 latency_ms: None,
                                 server_addr: None,
@@ -625,7 +787,9 @@ impl Drop for Session {
     fn drop(&mut self) {
         match self.registration_status {
             RegistrationStatus::Confirmed => {
-                let record = self.network_state.offline_ip(&self.device_id, self.ip, self.random_id);
+                let record =
+                    self.network_state
+                        .offline_ip(&self.device_id, self.ip, self.random_id);
                 if let Some(record) = record {
                     tokio::spawn(async move {
                         if let Err(e) = db::save_or_update_device(&record).await {
@@ -641,7 +805,11 @@ impl Drop for Session {
                     self.device_id,
                     self.ip
                 );
-                self.network_state.release_pre_registered_ip(&self.device_id, self.ip, self.random_id);
+                self.network_state.release_pre_registered_ip(
+                    &self.device_id,
+                    self.ip,
+                    self.random_id,
+                );
             }
         }
     }
@@ -668,8 +836,11 @@ pub struct NetworkInfoVO {
     pub gateway: Ipv4Addr,
     pub netmask: u8,
     pub net: Ipv4Net,
+    pub secret: String,
     pub lease_duration: u64,
     pub source: NetworkSource,
+    pub is_default: bool,
+    pub can_delete: bool,
     pub all_count: u32,
     pub online_count: u32,
 }
