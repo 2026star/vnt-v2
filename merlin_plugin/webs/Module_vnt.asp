@@ -1445,7 +1445,7 @@
                                                     </tr>
                                                     <tr>
                                                         <th width="20%"><a class="hintstyle" href="javascript:void(0);"
-                                                                onclick="openssHint(20)">局域网欧对密码 (password)</a></th>
+                                                                onclick="openssHint(20)">局域网配对密码 (password)</a></th>
                                                         <td>
                                                             <input type="password" name="vnt_key" id="vnt_key"
                                                                 title="v2.0.2起，此字段用于身份验证，必须与服务端对应网络秘钥完全一致！&#10;加入 default 网络: 填服务端的「默认网络秘钥(default_secret)」&#10;加入 net1 网络: 填服务端「自定义网络秘钥」中 net1 对应的密码&#10;秘钥必须 ≥ 24 位且包含大小写字母、数字、符号至少三种"
@@ -1803,7 +1803,7 @@
                                                         <td colspan="2">
                                                             <input type="text" class="input_ss_table"
                                                                 id="vnts2_default_secret"
-                                                                title="默认网络「default」的接入秘钥。&#10;客户端 Token 填 default 时，需把此秘钥填入客户端的「局域网欧对密码(password)」字段。&#10;秘钥要求: ≥ 24 位，包含大小写字母、数字、符号至少三种。&#10;留空则自动生成"
+                                                                title="默认网络「default」的接入秘钥。&#10;客户端 Token 填 default 时，需把此秘钥填入客户端的「局域网配对密码(password)」字段。&#10;秘钥要求: ≥ 24 位，包含大小写字母、数字、符号至少三种。&#10;留空则自动生成"
                                                                 name="vnts2_default_secret"
                                                                 placeholder="留空自动生成高强度秘钥（客户端 password 填此值加入 default 网络）" />
                                                         </td>
@@ -1856,7 +1856,7 @@
                                                         <td colspan="2">
                                                             <textarea type="text" class="input_ss_table"
                                                                 id="vnts2_network_secrets"
-                                                                title="上方每个自定义网络的接入秘钥，必须一一对应。&#10;格式: 网络名=秘钥&#10;示例: net1=MyStrongPwd2026!@#&#10;客户端 Token 填 net1 时，其「局域网欧对密码(password)」必须填此处 net1 对应的秘钥。&#10;秘钥要求: ≥ 24 位，包含大小写字母、数字、符号至少三种"
+                                                                title="上方每个自定义网络的接入秘钥，必须一一对应。&#10;格式: 网络名=秘钥&#10;示例: net1=MyStrongPwd2026!@#&#10;客户端 Token 填 net1 时，其「局域网配对密码(password)」必须填此处 net1 对应的秘钥。&#10;秘钥要求: ≥ 24 位，包含大小写字母、数字、符号至少三种"
                                                                 name="vnts2_network_secrets"
                                                                 placeholder="选填，格式: 网络名=高强度秘钥 例: net1=MyStrongPwd2026!@#  |  net2=AnotherPwd!2026#"
                                                                 style="height: 50px; font-family:'Courier New', Courier, mono; font-size: 11px;"></textarea>
