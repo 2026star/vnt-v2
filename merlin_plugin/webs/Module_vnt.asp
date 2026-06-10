@@ -140,7 +140,7 @@ var db_vnt = {};
 var params_input = [
     "vnt_cron_time", "vnt_cron_hour_min", "vnt_cron_type",
     "vnts_cron_time", "vnts_cron_hour_min", "vnts_cron_type",
-    "vnt_token", "vnt_ipmode", "vnt_static_ip", "vnt_desvice_id", "vnt_desvice_name",
+    "vnt_token", "vnt_server_token", "vnt_ipmode", "vnt_static_ip", "vnt_desvice_id", "vnt_desvice_name",
     "vnt_localadd", "vnt_peeradd", "vnt_serveraddr", "vnt_stunaddr", "vnt_tun_name",
     "vnt_relay_enable", "vnt_mtu", "vnt_key",
     "vnt_path", "vnt_mapping", "vnt_cert_mode", "vnt_tunnel_port",
@@ -1271,6 +1271,12 @@ function get_installog(s) {
                                             <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(3)">虚拟网络 Token (network_code)</a></th>
                                             <td>
                                                 <input type="password" name="vnt_token" id="vnt_token" title="虚拟网络Token（必填）" class="input_ss_table" autocomplete="new-password" autocorrect="off" autocapitalize="off" maxlength="64" value="" onBlur="switchType(this, false);" onFocus="switchType(this, true);" placeholder="必填，虚拟网络 Token" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th width="20%"><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(50)">服务端验证密码 (server_token)</a></th>
+                                            <td>
+                                                <input type="password" name="vnt_server_token" id="vnt_server_token" title="如果连接的服务端设置了认证密码，请在此填写" class="input_ss_table" autocomplete="new-password" autocorrect="off" autocapitalize="off" maxlength="64" value="" onBlur="switchType(this, false);" onFocus="switchType(this, true);" placeholder="选填，服务端的验证密码" />
                                             </td>
                                         </tr>
                                         <tr>
