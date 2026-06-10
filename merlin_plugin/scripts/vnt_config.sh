@@ -393,15 +393,17 @@ EOF
     if [ -n "$vnt_tunnel_port" ]; then
         echo "tunnel_port = ${vnt_tunnel_port}" >> /koolshare/vnt2/client_config.toml
     fi
-
     if [ "$vnt_ipmode" = "static" ] && [ -n "$vnt_static_ip" ]; then
         echo "ip = \"${vnt_static_ip}\"" >> /koolshare/vnt2/client_config.toml
     fi
+
     if [ -n "$vnt_key" ]; then
-        echo "password = \"${vnt_key}\"" >> /koolshare/vnt2/client_config.toml
+        vnt_key_clean=$(echo "$vnt_key" | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        echo "password = \"${vnt_key_clean}\"" >> /koolshare/vnt2/client_config.toml
     fi
     if [ -n "$vnt_server_token" ]; then
-        echo "server_token = \"${vnt_server_token}\"" >> /koolshare/vnt2/client_config.toml
+        vnt_server_token_clean=$(echo "$vnt_server_token" | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        echo "server_token = \"${vnt_server_token_clean}\"" >> /koolshare/vnt2/client_config.toml
     fi
     if [ -n "$vnt_desvice_id" ]; then
         echo "device_id = \"${vnt_desvice_id}\"" >> /koolshare/vnt2/client_config.toml
@@ -487,7 +489,7 @@ EOF
     fi
 
     echo "[network_secrets]" >> /koolshare/vnt2/server_config.toml
-    dbus_secret=$(dbus get vnts2_default_secret)
+    dbus_secret=$(dbus get vnts2_default_secret | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
     if [ -z "$dbus_secret" ]; then
         dbus_secret=$(awk 'BEGIN{srand(); printf "Vnts-Secret-A1!%08x%08x", rand()*100000000, rand()*100000000}')
         dbus set vnts2_default_secret="$dbus_secret"
