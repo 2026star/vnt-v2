@@ -157,28 +157,38 @@ var params_check = [
 ];
 function initial() {
 	show_menu(menu_hook);
-	get_dbus_data();
 	get_vnt_status();
-	toggle_func();
-	conf2obj();
-	buildswitch();
-	get_installog();
+	get_dbus_data();
 }
 function get_dbus_data() {
+	var loadingEl = document.getElementById('vnt_loading_tip');
+	if (loadingEl) loadingEl.style.display = 'block';
 	$.ajax({
 		type: "GET",
 		url: "/_api/vnt",
 		dataType: "json",
-		async: false,
+		timeout: 8000,
 		success: function(data) {
 			if (data && data.result && data.result[0]) {
 				db_vnt = data.result[0];
 			} else {
 				db_vnt = {};
 			}
+			if (loadingEl) loadingEl.style.display = 'none';
 			conf2obj();
 			update_visibility();
 			toggle_func();
+			buildswitch();
+			get_installog();
+		},
+		error: function() {
+			db_vnt = {};
+			if (loadingEl) loadingEl.style.display = 'none';
+			conf2obj();
+			update_visibility();
+			toggle_func();
+			buildswitch();
+			get_installog();
 		}
 	});
 }
@@ -1163,6 +1173,11 @@ function get_installog(s) {
 <body onload="initial();">
 <div id="TopBanner"></div>
 <div id="Loading" class="popup_bg"></div>
+<div id="vnt_loading_tip" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;background:rgba(0,0,0,0.45);text-align:center;">
+    <div style="margin-top:20%;display:inline-block;background:#2B373B;border-radius:10px;padding:30px 50px;box-shadow:3px 3px 15px #000;color:#99FF00;font-size:16px;font-weight:bold;">
+        ⏳ 正在读取配置，请稍候...
+    </div>
+</div>
 <iframe name="hidden_frame" id="hidden_frame" src="" width="0" height="0" frameborder="0"></iframe>
 <form method="POST" name="form" action="/applydb.cgi?p=vnt" target="hidden_frame">
 <input type="hidden" name="current_page" value="Module_vnt.asp"/>
