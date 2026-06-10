@@ -476,7 +476,7 @@ EOF
     echo "[custom_nets]" >> /koolshare/vnt2/server_config.toml
     echo "default = \"${vnts2_network:-10.26.0.0/24}\"" >> /koolshare/vnt2/server_config.toml
     if [ -n "$vnts2_custom_nets" ]; then
-        echo "$vnts2_custom_nets" | sed 's/\\n/\n/g' | sed 's/\\r//g' | tr ',' '\n' | tr '|' '\n' | while IFS= read -r pair; do
+        echo "$vnts2_custom_nets" | sed 's/\\n/\n/g' | sed 's/\\r//g' | tr ',' '\n' | tr '|' '\n' | while IFS= read -r pair || [ -n "$pair" ]; do
             pair=$(echo "$pair" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
             k="${pair%%=*}"
             v="${pair#*=}"
@@ -495,7 +495,7 @@ EOF
     echo "default = \"$dbus_secret\"" >> /koolshare/vnt2/server_config.toml
 
     if [ -n "$vnts2_network_secrets" ]; then
-        echo "$vnts2_network_secrets" | sed 's/\\n/\n/g' | sed 's/\\r//g' | tr ',' '\n' | tr '|' '\n' | while IFS= read -r pair; do
+        echo "$vnts2_network_secrets" | sed 's/\\n/\n/g' | sed 's/\\r//g' | tr ',' '\n' | tr '|' '\n' | while IFS= read -r pair || [ -n "$pair" ]; do
             pair=$(echo "$pair" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
             k="${pair%%=*}"
             v="${pair#*=}"

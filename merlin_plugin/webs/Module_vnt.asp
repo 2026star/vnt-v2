@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html
+<!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 
@@ -179,6 +179,7 @@
             get_vnt_status();
             get_dbus_data();
         }
+        var get_dbus_retry = 0;
         function get_dbus_data() {
             var loadingEl = document.getElementById('vnt_loading_tip');
             if (loadingEl) loadingEl.style.display = 'block';
@@ -186,28 +187,45 @@
                 type: "GET",
                 url: "/_api/vnt",
                 dataType: "json",
-                timeout: 8000,
+                timeout: 3000,
                 success: function (data) {
-                    if (data && data.result && data.result[0]) {
+                    if (data && data.result && data.result[0] && Object.keys(data.result[0]).length > 0) {
                         db_vnt = data.result[0];
+                        get_dbus_retry = 0;
+                        if (loadingEl) loadingEl.style.display = 'none';
+                        conf2obj();
+                        update_visibility();
+                        toggle_func();
+                        buildswitch();
+                        get_installog();
                     } else {
-                        db_vnt = {};
+                        if (get_dbus_retry < 3) {
+                            get_dbus_retry++;
+                            setTimeout(get_dbus_data, 1000);
+                        } else {
+                            db_vnt = {};
+                            if (loadingEl) loadingEl.style.display = 'none';
+                            conf2obj();
+                            update_visibility();
+                            toggle_func();
+                            buildswitch();
+                            get_installog();
+                        }
                     }
-                    if (loadingEl) loadingEl.style.display = 'none';
-                    conf2obj();
-                    update_visibility();
-                    toggle_func();
-                    buildswitch();
-                    get_installog();
                 },
                 error: function () {
-                    db_vnt = {};
-                    if (loadingEl) loadingEl.style.display = 'none';
-                    conf2obj();
-                    update_visibility();
-                    toggle_func();
-                    buildswitch();
-                    get_installog();
+                    if (get_dbus_retry < 3) {
+                        get_dbus_retry++;
+                        setTimeout(get_dbus_data, 1000);
+                    } else {
+                        db_vnt = {};
+                        if (loadingEl) loadingEl.style.display = 'none';
+                        conf2obj();
+                        update_visibility();
+                        toggle_func();
+                        buildswitch();
+                        get_installog();
+                    }
                 }
             });
         }
