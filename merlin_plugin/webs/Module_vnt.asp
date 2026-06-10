@@ -160,7 +160,7 @@
             "vnt_cron_time", "vnt_cron_hour_min", "vnt_cron_type",
             "vnts_cron_time", "vnts_cron_hour_min", "vnts_cron_type",
             "vnt_token", "vnt_server_token", "vnt_ipmode", "vnt_static_ip", "vnt_desvice_id", "vnt_desvice_name",
-            "vnt_localadd", "vnt_peeradd", "vnt_serveraddr", "vnt_stunaddr", "vnt_tun_name",
+            "vnt_localadd", "vnt_peeradd", "vnt_serveraddr", "vnt_udp_stun", "vnt_tcp_stun", "vnt_tun_name",
             "vnt_relay_enable", "vnt_mtu", "vnt_key",
             "vnt_path", "vnt_mapping", "vnt_cert_mode", "vnt_tunnel_port",
             "vnts_path",
@@ -943,8 +943,8 @@
                 statusmenu = "需要连接的vnts服务器的IP:端口。留空，默认使用内置的公共服务器。<br>协议支持使用tcp://和ws://和wss://,默认为udp://";
                 _caption = "vnts服务器地址";
             } else if (itemNum == 2) {
-                statusmenu = "自定义打洞stun服务器，使用stun服务探测客户端NAT类型，不同类型有不同的打洞策略，已内置谷歌 QQ 可不填<br>多个stun服务器地址，请使用英文|进行分隔";
-                _caption = "stun服务器地址";
+                statusmenu = "自定义 UDP STUN 服务器地址，用于 UDP 协议打洞探测。留空则自动使用内置的 UDP STUN（内置：stun.miwifi.com:3478、stun.chat.bilibili.com:3478、stun.l.google.com:19302）。<br>多个地址请使用英文逗号 ','、'|' 或换行分隔";
+                _caption = "UDP STUN 服务器地址";
             } else if (itemNum == 3) {
                 statusmenu = " 这是必填项！一个虚拟局域网的标识，连接同一服务器时，相同VPN名称的设备才会组成一个局域网（这是 -k 参数）<br><font color='#F46'>注意：</font>某些特殊字符的密码，可能会无法验证。";
                 _caption = " 客户端 token ";
@@ -1024,8 +1024,8 @@
                 statusmenu = "查看程序的信息和运行日志";
                 _caption = "运行日志";
             } else if (itemNum == 31) {
-                statusmenu = "设定白名单token，若填写只有这指定的token名称才能连接，不填则所有客户端都可以连接<br>多个token请使用英文的|进行分隔";
-                _caption = "服务器token";
+                statusmenu = "设定白名单网络编号（network_code），若填写则只有指定网络编号的客户端才能连接该服务端，不填则所有客户端都可以连接。<br>多个网络编号可以使用英文逗号 ','、'|' 或换行分隔";
+                _caption = "服务端网络白名单";
             } else if (itemNum == 32) {
                 statusmenu = "设定服务器的监听端口，客户端将使用此端口连接服务器";
                 _caption = "服务器端口";
@@ -1101,6 +1101,15 @@
             } else if (itemNum == 61) {
                 statusmenu = "在服务端全局指定网络编号到特定对端网关局域网段的映射关系。格式为: 网络编号=目标网段（如 net1=192.168.1.0/24）。每行输入一条，多个可用换行或逗号分隔。";
                 _caption = "局域网段网关指向";
+            } else if (itemNum == 62) {
+                statusmenu = "自定义 TCP STUN 服务器地址，用于 TCP 协议打洞探测（通常需要包含端口，如 stun.nextcloud.com:443）。留空则自动使用内置的 TCP STUN（内置：stun.flashdance.cx:3478、stun.sipnet.net:3478、stun.nextcloud.com:443）。<br>多个地址请使用英文逗号 ','、'|' 或换行分隔";
+                _caption = "TCP STUN 服务器地址";
+            } else if (itemNum == 63) {
+                statusmenu = "默认网络「default」的接入密钥。当客户端的虚拟网络名称(Token)填写为 default 时，客户端必须在「局域网配对密码(password)」中填写与此完全一致的密钥才能连接。<br><font color='#F46'>安全要求：</font>密钥长度必须大于等于 24 位，且必须包含大小写字母、数字、符号至少三种。如果不填写，启动时会自动生成一个强密钥。";
+                _caption = "默认网络密钥";
+            } else if (itemNum == 64) {
+                statusmenu = "自定义附加网络的接入密钥，必须与上方创建的自定义附加网络一一对应。<br>格式为: 网络名=密钥（例如: net1=MyStrongPwd2026!@#）。当客户端填写的 Token (虚拟网络名称) 为此处的网络名（如 net1）时，客户端的「局域网配对密码(password)」必须填写与其对应的密钥才能连接成功。<br><font color='#F46'>安全要求：</font>密钥长度必须大于等于 24 位，且必须包含大小写字母、数字、符号至少三种。";
+                _caption = "自定义网络密钥";
             }
 
             return overlib(statusmenu, OFFSETX, -160, LEFT, STICKY, WIDTH, 'width', CAPTION, _caption, CLOSETITLE, '');
@@ -1694,14 +1703,26 @@
                                                     </tr>
                                                     <tr>
                                                         <th width="20%"><a class="hintstyle" href="javascript:void(0);"
-                                                                onclick="openssHint(2)">STUN 服务探测地址</a></th>
+                                                                onclick="openssHint(2)">UDP STUN 服务探测地址</a></th>
                                                         <td>
                                                             <textarea type="text" class="input_ss_table"
-                                                                id="vnt_stunaddr"
-                                                                title="STUN服务器地址，例如: stun.qq.com:3478。多个以逗号或换行分隔"
-                                                                name="vnt_stunaddr"
-                                                                placeholder="选填，STUN地址例如: stun.qq.com:3478。多个地址以英文逗号 ','、'|' 或换行分隔"
-                                                                style="height: 50px; font-family:'Courier New', Courier, mono; font-size: 11px;"></textarea>
+                                                                id="vnt_udp_stun"
+                                                                title="选填，留空则使用内置的 stun.miwifi.com:3478, stun.chat.bilibili.com:3478, stun.l.google.com:19302"
+                                                                name="vnt_udp_stun"
+                                                                placeholder="选填，留空则自动使用内置的 UDP STUN 地址：&#10;• stun.miwifi.com:3478&#10;• stun.chat.bilibili.com:3478&#10;• stun.l.google.com:19302&#10;（多个地址以英文逗号 ','、'|' 或换行分隔）"
+                                                                style="height: 70px; font-family:'Courier New', Courier, mono; font-size: 11px;"></textarea>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th width="20%"><a class="hintstyle" href="javascript:void(0);"
+                                                                onclick="openssHint(62)">TCP STUN 服务探测地址</a></th>
+                                                        <td>
+                                                            <textarea type="text" class="input_ss_table"
+                                                                id="vnt_tcp_stun"
+                                                                title="选填，留空则使用内置的 stun.flashdance.cx:3478, stun.sipnet.net:3478, stun.nextcloud.com:443"
+                                                                name="vnt_tcp_stun"
+                                                                placeholder="选填，留空则自动使用内置的 TCP STUN 地址：&#10;• stun.flashdance.cx:3478&#10;• stun.sipnet.net:3478&#10;• stun.nextcloud.com:443&#10;（多个地址以英文逗号 ','、'|' 或换行分隔）"
+                                                                style="height: 70px; font-family:'Courier New', Courier, mono; font-size: 11px;"></textarea>
                                                         </td>
                                                     </tr>
                                                 </table>
@@ -1817,7 +1838,8 @@
                                                         </td>
                                                     </tr>
                                                     <tr>
-                                                        <th>默认网络秘钥 (default_secret)</th>
+                                                        <th><a class="hintstyle" href="javascript:void(0);"
+                                                                onclick="openssHint(63)">默认网络秘钥 (default_secret)</a></th>
                                                         <td colspan="2">
                                                             <input type="text" class="input_ss_table"
                                                                 id="vnts2_default_secret"
@@ -1870,7 +1892,7 @@
                                                         </td>
                                                     </tr>
                                                     <tr>
-                                                        <th>自定义网络秘钥 (network_secrets)</th>
+                                                         <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(64)">自定义网络秘钥 (network_secrets)</a></th>
                                                         <td colspan="2">
                                                             <textarea type="text" class="input_ss_table"
                                                                 id="vnts2_network_secrets"
@@ -1973,18 +1995,18 @@
                                                                 placeholder="例如: /koolshare/vnt2/key.pem" />
                                                         </td>
                                                     </tr>
-                                                    <tr>
-                                                        <th><a class="hintstyle" href="javascript:void(0);"
-                                                                onclick="openssHint(31)">虚拟网络 Token 接入白名单</a></th>
-                                                        <td colspan="2">
-                                                            <textarea type="text" class="input_ss_table"
-                                                                id="vnts2_whitelist"
-                                                                title="仅限指定Token接入。多个以英文逗号 '',''、''|'' 或换行分隔"
-                                                                name="vnts2_whitelist"
-                                                                placeholder="选填，仅限指定Token接入。多个以英文逗号 ','、'|' 或换行分隔"
-                                                                style="height: 50px; font-family:'Courier New', Courier, mono; font-size: 11px;"></textarea>
-                                                        </td>
-                                                    </tr>
+                                                     <tr>
+                                                         <th><a class="hintstyle" href="javascript:void(0);"
+                                                                 onclick="openssHint(31)">虚拟网络白名单 (network_code)</a></th>
+                                                         <td colspan="2">
+                                                             <textarea type="text" class="input_ss_table"
+                                                                 id="vnts2_whitelist"
+                                                                 title="仅限指定 network_code 接入。多个以英文逗号 '',''、''|'' 或换行分隔"
+                                                                 name="vnts2_whitelist"
+                                                                 placeholder="选填，仅限指定 network_code 接入。多个以英文逗号 ','、'|' 或换行分隔"
+                                                                 style="height: 50px; font-family:'Courier New', Courier, mono; font-size: 11px;"></textarea>
+                                                         </td>
+                                                     </tr>
                                                     <tr style="background-color: #576d73; color: #fff;">
                                                         <td colspan="3" style="font-weight: bold; padding: 6px 10px;">
                                                             多服务器互联设置 (选填)</td>

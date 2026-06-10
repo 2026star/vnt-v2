@@ -35,7 +35,12 @@ vnt_desvice_name=`dbus get vnt_desvice_name`
 vnt_localadd=`dbus get vnt_localadd`
 vnt_peeradd=`dbus get vnt_peeradd`
 vnt_serveraddr=`dbus get vnt_serveraddr`
+vnt_udp_stun=`dbus get vnt_udp_stun`
+vnt_tcp_stun=`dbus get vnt_tcp_stun`
 vnt_stunaddr=`dbus get vnt_stunaddr`
+# 兼容旧参数
+[ -z "$vnt_udp_stun" ] && [ -n "$vnt_stunaddr" ] && vnt_udp_stun="$vnt_stunaddr"
+[ -z "$vnt_tcp_stun" ] && [ -n "$vnt_stunaddr" ] && vnt_tcp_stun="$vnt_stunaddr"
 vnt_cron_type=`dbus get vnt_cron_type`
 vnts_cron_type=`dbus get vnts_cron_type`
 vnt_mtu=`dbus get vnt_mtu`
@@ -114,6 +119,20 @@ check_and_rotate_logs(){
         echo "【$(TZ=UTC-8 date -R +%Y年%m月%d日\ %X)】: 服务端日志过多，自动清理保留最新100条..." > /tmp/vnts_log_tmp
         tail -n 100 "$vnts_log" >> /tmp/vnts_log_tmp
         mv /tmp/vnts_log_tmp "$vnts_log"
+    fi
+    # 定期清理程序自身产生的原生日志文件（避免占用过多 RAM）
+    if [ -d "/tmp/vnt2_logs" ]; then
+        for f in /tmp/vnt2_logs/*; do
+            [ "${f##*/}" = "log4rs.yaml" ] && continue
+            if [ -f "$f" ] || [ -L "$f" ]; then
+                # 保留主日志文件并清空内容，删除已滚动备份的旧日志
+                if [ "${f##*.}" = "log" ]; then
+                    > "$f"
+                else
+                    rm -f "$f"
+                fi
+            fi
+        done
     fi
 }
 
@@ -286,6 +305,34 @@ fun_updatevnts(){
     logg "提示：请通过Web页面或SSH手动上传并替换 vnts 服务端二进制文件！" "vnts"
 }
 
+prepare_logs_dir(){
+    mkdir -p /tmp/vnt2_logs
+
+    # 1. 迁移旧的 /koolshare/vnt2/logs 目录下的 log4rs.yaml 并删除该实际目录
+    if [ -d "/koolshare/vnt2/logs" ] && [ ! -L "/koolshare/vnt2/logs" ]; then
+        if [ -f "/koolshare/vnt2/logs/log4rs.yaml" ]; then
+            cp -f /koolshare/vnt2/logs/log4rs.yaml /koolshare/vnt2/log4rs.yaml
+        fi
+        rm -rf /koolshare/vnt2/logs
+    fi
+
+    # 2. 如果内存目录中的 log4rs.yaml 是一个实际文件，将其移回持久化目录进行备份
+    if [ -f "/tmp/vnt2_logs/log4rs.yaml" ] && [ ! -L "/tmp/vnt2_logs/log4rs.yaml" ]; then
+        mv -f /tmp/vnt2_logs/log4rs.yaml /koolshare/vnt2/log4rs.yaml
+    fi
+
+    # 3. 确保 /koolshare/vnt2/logs 指向 /tmp/vnt2_logs 软链接
+    if [ ! -L "/koolshare/vnt2/logs" ]; then
+        rm -rf /koolshare/vnt2/logs
+        ln -sf /tmp/vnt2_logs /koolshare/vnt2/logs
+    fi
+
+    # 4. 如果有持久化的 log4rs.yaml，为内存目录创建软链接
+    if [ -f "/koolshare/vnt2/log4rs.yaml" ]; then
+        ln -sf /koolshare/vnt2/log4rs.yaml /tmp/vnt2_logs/log4rs.yaml
+    fi
+}
+
 write_client_config(){
     mkdir -p /koolshare/vnt2
     
@@ -299,12 +346,20 @@ write_client_config(){
         servers_toml="\"tcp://vnt.wherewego.top:29872\""
     fi
     
-    stun_toml=""
-    if [ -n "$vnt_stunaddr" ]; then
-        for s in $(echo "$vnt_stunaddr" | sed 's/\\n/ /g' | sed 's/\\r/ /g' | tr '|' ' ' | tr ',' ' ' | tr '\n' ' '); do
-            stun_toml="${stun_toml}\"${s}\", "
+    udp_stun_toml=""
+    if [ -n "$vnt_udp_stun" ]; then
+        for s in $(echo "$vnt_udp_stun" | sed 's/\\n/ /g' | sed 's/\\r/ /g' | tr '|' ' ' | tr ',' ' ' | tr '\n' ' '); do
+            udp_stun_toml="${udp_stun_toml}\"${s}\", "
         done
-        stun_toml=$(echo "$stun_toml" | sed 's/, $//')
+        udp_stun_toml=$(echo "$udp_stun_toml" | sed 's/, $//')
+    fi
+
+    tcp_stun_toml=""
+    if [ -n "$vnt_tcp_stun" ]; then
+        for s in $(echo "$vnt_tcp_stun" | sed 's/\\n/ /g' | sed 's/\\r/ /g' | tr '|' ' ' | tr ',' ' ' | tr '\n' ' '); do
+            tcp_stun_toml="${tcp_stun_toml}\"${s}\", "
+        done
+        tcp_stun_toml=$(echo "$tcp_stun_toml" | sed 's/, $//')
     fi
 
     input_toml=""
@@ -418,8 +473,8 @@ EOF
     echo "input = [${input_toml}]" >> /koolshare/vnt2/client_config.toml
     echo "output = [${output_toml}]" >> /koolshare/vnt2/client_config.toml
     echo "port_mapping = [${mapping_toml}]" >> /koolshare/vnt2/client_config.toml
-    echo "udp_stun = [${stun_toml}]" >> /koolshare/vnt2/client_config.toml
-    echo "tcp_stun = [${stun_toml}]" >> /koolshare/vnt2/client_config.toml
+    echo "udp_stun = [${udp_stun_toml}]" >> /koolshare/vnt2/client_config.toml
+    echo "tcp_stun = [${tcp_stun_toml}]" >> /koolshare/vnt2/client_config.toml
 }
 
 write_server_config(){
@@ -530,6 +585,7 @@ fun_start_vnt(){
       ln -sf /tmp/vnt2_cli.log /tmp/upload/vnt-cli.log
       
       cd /koolshare/vnt2
+      prepare_logs_dir
       killall vnt2_cli 2>/dev/null
       $vnt_path --conf /koolshare/vnt2/client_config.toml >>/tmp/vnt2_cli.log 2>&1 &
      
@@ -573,6 +629,7 @@ fun_start_vnts(){
       ln -sf /tmp/vnts2.log /tmp/upload/vnts.log
       
       cd /koolshare/vnt2
+      prepare_logs_dir
       killall -9 vnts2 2>/dev/null
       $vnts_path -c /koolshare/vnt2/server_config.toml >>/tmp/vnts2.log 2>&1 &
      
