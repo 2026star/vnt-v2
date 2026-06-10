@@ -616,10 +616,11 @@ function get_vnts_fingerprint() {
 					cache:false,
 					dataType: 'text',
 					success: function(res) {
-						if (!res || res.length == 0 || res.trim() == "未找到Fingerprint" || res.trim() == ""){
-							alert("未在日志中找到 Fingerprint，服务端可能未启动或日志已滚动。"); 
+						if (!res || res.length == 0 || res.trim() == "未找到Fingerprint" || res.trim() == "未在日志中找到 Fingerprint" || res.trim() == ""){
+							E("vnts_fingerprinttxt").value = "未在日志中找到 Fingerprint，服务端可能未启动或日志已滚动。"; 
+							get_vnts_fingerprint();
 						}else{ 
-							prompt("服务端 Fingerprint:", res.trim()); 
+							$('#vnts_fingerprinttxt').val(res); 
 						}
 					}
 				});
@@ -651,6 +652,10 @@ function open_conf(open_conf) {
 	if (open_conf == "vnts_cmd") {
 		get_vnts_cmd();
 		console.log("vnts_cmd")
+	}
+	if (open_conf == "vnts_fingerprint") {
+		get_vnts_fingerprint();
+		console.log("vnts_fingerprint")
 	}
 	if (open_conf == "vnt_log") {
 		get_vnt_log();
@@ -1527,7 +1532,7 @@ function get_installog(s) {
                                             <td>
 											    
 												<a type="button" class="info_btn" style="cursor:pointer" href="javascript:void(0);" onclick="open_conf('vnts_cmd');" >状态信息</a>&nbsp;
-                                                <a type="button" class="info_btn" style="cursor:pointer" href="javascript:void(0);" onclick="get_vnts_fingerprint();" >获取指纹(Fingerprint)</a>&nbsp;
+                                                <a type="button" class="info_btn" style="cursor:pointer" href="javascript:void(0);" onclick="open_conf('vnts_fingerprint');" >获取指纹(Fingerprint)</a>&nbsp;
                                                 <a type="button" class="info_btn" style="cursor:pointer" href="javascript:void(0);" onclick="open_conf('vnts_log');" >查看日志</a>
                                             
                                             </td>
@@ -1718,6 +1723,16 @@ function get_installog(s) {
                                         </div>
                                         <div style="margin-top:5px;padding-bottom:10px;width:100%;text-align:center;">
                                             <input id="edit_node2" class="button_gen" type="button" onclick="close_conf('vnts_cmd');" value="返回主界面">
+                                        </div>
+                                    </div>
+
+									<div id="vnts_fingerprint"  class="contentM_qis" style="box-shadow: 3px 3px 10px #000;margin-top: 70px;">
+                                        <div class="user_title">VNTS Fingerprint 指纹&nbsp;&nbsp;&nbsp;&nbsp;<a href="javascript:void(0)" onclick="close_conf('vnts_fingerprint');" value="关闭"><span class="close"></span></a></div>
+                                        <div id="user_tr" style="margin: 10px 10px 10px 10px;width:98%;text-align:center;">
+                                            <textarea cols="50" rows="20" wrap="off" id="vnts_fingerprinttxt" style="width:97%;padding-left:10px;padding-right:10px;border:1px solid #222;font-family:'Courier New', Courier, mono; font-size:11px;background:#475A5F;color:#FFFFFF;outline: none;" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+                                        </div>
+                                        <div style="margin-top:5px;padding-bottom:10px;width:100%;text-align:center;">
+                                            <input id="edit_node2" class="button_gen" type="button" onclick="close_conf('vnts_fingerprint');" value="返回主界面">
                                         </div>
                                     </div>
 

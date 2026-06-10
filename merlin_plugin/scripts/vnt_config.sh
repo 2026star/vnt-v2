@@ -644,14 +644,14 @@ vnts_cmds(){
 }
 
 vnts_fingerprint(){
-  fp=$(grep -oP 'Fingerprint:\s*\K[a-f0-9]{64}' /tmp/vnts2.log 2>/dev/null | tail -n 1)
+  fp=$(grep -oP 'Fingerprint:\s*\K[a-f0-9]{64}' /tmp/vnts2.log 2>/dev/null | awk '!a[$0]++')
   if [ -z "$fp" ]; then
-    fp=$(grep -i 'fingerprint' /tmp/vnts2.log 2>/dev/null | tail -n 1 | awk -F'Fingerprint:' '{print $2}' | tr -d ' ' | tr -d '\r' | tr -d '\n')
+    fp=$(grep -i 'fingerprint' /tmp/vnts2.log 2>/dev/null | awk -F'Fingerprint:' '{print $2}' | sed 's/ //g; s/\r//g' | awk '!a[$0]++')
   fi
   if [ -n "$fp" ]; then
     echo "$fp" > /tmp/upload/vnts_fingerprint.log
   else
-    echo "未找到Fingerprint" > /tmp/upload/vnts_fingerprint.log
+    echo "未在日志中找到 Fingerprint" > /tmp/upload/vnts_fingerprint.log
   fi
 }
 
