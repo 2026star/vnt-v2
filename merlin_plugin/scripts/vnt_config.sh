@@ -658,9 +658,23 @@ fun_start_stop(){
 }
 
 vnt_info(){
- vnt_ctrl_path=$(dirname $vnt_path)/vnt2_ctrl
- [ ! -f "$vnt_ctrl_path" ] && vnt_ctrl_path=/koolshare/bin/vnt2_ctrl
- env NO_COLOR=1 $vnt_ctrl_path --port 11233 info 2>&1 | sed "s/$(printf '\033')\[[0-9;]*[a-zA-Z]//g" >/tmp/upload/vnt_info.log
+  vnt_ctrl_path=$(dirname $vnt_path)/vnt2_ctrl
+  [ ! -f "$vnt_ctrl_path" ] && vnt_ctrl_path=/koolshare/bin/vnt2_ctrl
+  env NO_COLOR=1 $vnt_ctrl_path --port 11233 info 2>&1 | sed "s/$(printf '\033')\[[0-9;]*[a-zA-Z]//g" >/tmp/upload/vnt_info.log
+}
+vnt_toml(){
+  if [ -f "/koolshare/vnt2/client_config.toml" ]; then
+    cat /koolshare/vnt2/client_config.toml >/tmp/upload/vnt_toml.log
+  else
+    echo "配置文件 /koolshare/vnt2/client_config.toml 不存在" >/tmp/upload/vnt_toml.log
+  fi
+}
+vnts_toml(){
+  if [ -f "/koolshare/vnt2/server_config.toml" ]; then
+    cat /koolshare/vnt2/server_config.toml >/tmp/upload/vnts_toml.log
+  else
+    echo "配置文件 /koolshare/vnt2/server_config.toml 不存在" >/tmp/upload/vnts_toml.log
+  fi
 }
 vnt_all(){
  vnt_ctrl_path=$(dirname $vnt_path)/vnt2_ctrl
@@ -763,6 +777,14 @@ vinfo)
         vnt_info
 	http_response "$1"
     ;;
+vnt_toml)
+        vnt_toml
+	http_response "$1"
+    ;;
+vnts_toml)
+        vnts_toml
+	http_response "$1"
+    ;;
 all)
         vnt_all
 	http_response "$1"
@@ -858,6 +880,14 @@ restart)
 	;;
 vinfo)
         vnt_info
+	http_response "$1"
+    ;;
+vnt_toml)
+        vnt_toml
+	http_response "$1"
+    ;;
+vnts_toml)
+        vnts_toml
 	http_response "$1"
     ;;
 all)

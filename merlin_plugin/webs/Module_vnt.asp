@@ -496,6 +496,58 @@
                 }
             });
         }
+        function get_vnt_toml() {
+            var uid = parseInt(Math.random() * 100000000);
+            var postData = { "id": uid, "method": "vnt_config.sh", "params": ["vnt_toml"], "fields": db_vnt };
+            $.ajax({
+                url: "/_api/",
+                cache: false,
+                type: "POST",
+                dataType: "json",
+                data: JSON.stringify(postData),
+                success: function (response) {
+                    if (response.result == uid) {
+                        $.ajax({
+                            url: '/_temp/vnt_toml.log',
+                            type: 'GET',
+                            cache: false,
+                            dataType: 'text',
+                            success: function (res) {
+                                if (res.length == 0) {
+                                    E("vnt_toml_txt").value = "配置文件未生成";
+                                } else { $('#vnt_toml_txt').val(res); }
+                            }
+                        });
+                    }
+                }
+            });
+        }
+        function get_vnts_toml() {
+            var uid = parseInt(Math.random() * 100000000);
+            var postData = { "id": uid, "method": "vnt_config.sh", "params": ["vnts_toml"], "fields": db_vnt };
+            $.ajax({
+                url: "/_api/",
+                cache: false,
+                type: "POST",
+                dataType: "json",
+                data: JSON.stringify(postData),
+                success: function (response) {
+                    if (response.result == uid) {
+                        $.ajax({
+                            url: '/_temp/vnts_toml.log',
+                            type: 'GET',
+                            cache: false,
+                            dataType: 'text',
+                            success: function (res) {
+                                if (res.length == 0) {
+                                    E("vnts_toml_txt").value = "配置文件未生成";
+                                } else { $('#vnts_toml_txt').val(res); }
+                            }
+                        });
+                    }
+                }
+            });
+        }
         function get_vnt_all() {
             var uid = parseInt(Math.random() * 100000000);
             var postData = { "id": uid, "method": "vnt_config.sh", "params": ["all"], "fields": db_vnt };
@@ -711,6 +763,12 @@
             }
             if (open_conf == "vnts_log") {
                 get_vnts_log();
+            }
+            if (open_conf == "vnt_toml") {
+                get_vnt_toml();
+            }
+            if (open_conf == "vnts_toml") {
+                get_vnts_toml();
             }
             $("#" + open_conf).fadeIn(200);
         }
@@ -940,7 +998,7 @@
                 statusmenu = "开启vnt-cli客户端选项,更新按钮为在线更新客户端程序版本，重启会同时重启客户端服务端";
                 _caption = "客户端服务说明";
             } else if (itemNum == 1) {
-                statusmenu = "需要连接的vnts服务器的IP:端口。留空，默认使用内置的公共服务器。<br>协议支持使用tcp://和ws://和wss://,默认为udp://";
+                statusmenu = "需要连接的 vnts 服务器的 IP:端口。留空则默认使用内置的公共服务器。<br>协议前缀支持使用 quic://、tcp://、wss://、dynamic://，若不填写前缀，默认是 quic://。";
                 _caption = "vnts服务器地址";
             } else if (itemNum == 2) {
                 statusmenu = "自定义 UDP STUN 服务器地址，用于 UDP 协议打洞探测。留空则自动使用内置的 UDP STUN（内置：stun.miwifi.com:3478、stun.chat.bilibili.com:3478、stun.l.google.com:19302）。<br>多个地址请使用英文逗号 ','、'|' 或换行分隔";
@@ -1385,7 +1443,10 @@
                                                                 onclick="open_conf('vnt_cmd');">状态参数信息</a>&nbsp;
                                                             <a type="button" class="info_btn" style="cursor:pointer"
                                                                 href="javascript:void(0);"
-                                                                onclick="open_conf('vnt_log');">程序运行日志</a>
+                                                                onclick="open_conf('vnt_log');">程序运行日志</a>&nbsp;
+                                                            <a type="button" class="info_btn" style="cursor:pointer"
+                                                                href="javascript:void(0);"
+                                                                onclick="open_conf('vnt_toml');">当前配置 (TOML)</a>
                                                         </td>
                                                     </tr>
                                                     <tr>
@@ -1421,9 +1482,9 @@
                                                         <td>
                                                             <textarea type="text" class="input_ss_table" value=""
                                                                 id="vnt_serveraddr"
-                                                                title="例如: tcp://127.0.0.1:29872。多个地址以英文逗号 '',''、''|'' 或换行分隔"
+                                                                title="例如: 127.0.0.1:29872 (默认quic) 或 tcp://127.0.0.1:29872。多个以逗号、竖线或换行分隔"
                                                                 name="vnt_serveraddr"
-                                                                placeholder="例如: tcp://127.0.0.1:29872。多个地址以英文逗号 ','、'|' 或换行分隔"
+                                                                placeholder="例如: 127.0.0.1:29872 (默认quic) 或 tcp://127.0.0.1:29872。多个以英文逗号 ','、'|' 或换行分隔"
                                                                 style="height: 50px; font-family:'Courier New', Courier, mono; font-size: 11px;"></textarea>
                                                         </td>
                                                     </tr>
@@ -1809,7 +1870,10 @@
                                                                 onclick="open_conf('vnts_fingerprint');">获取指纹(Fingerprint)</a>&nbsp;
                                                             <a type="button" class="info_btn" style="cursor:pointer"
                                                                 href="javascript:void(0);"
-                                                                onclick="open_conf('vnts_log');">查看日志</a>
+                                                                onclick="open_conf('vnts_log');">查看日志</a>&nbsp;
+                                                            <a type="button" class="info_btn" style="cursor:pointer"
+                                                                href="javascript:void(0);"
+                                                                onclick="open_conf('vnts_toml');">当前配置 (TOML)</a>
 
                                                         </td>
                                                     </tr>
@@ -2105,6 +2169,25 @@
                                                 </div>
                                             </div>
 
+                                            <div id="vnts_toml" class="contentM_qis"
+                                                style="box-shadow: 3px 3px 10px #000;margin-top: 70px;">
+                                                <div class="user_title">VNTS 服务端配置 (server_config.toml)&nbsp;&nbsp;&nbsp;&nbsp;<a
+                                                        href="javascript:void(0)" onclick="close_conf('vnts_toml');"
+                                                        value="关闭"><span class="close"></span></a></div>
+                                                <div id="user_tr"
+                                                    style="margin: 10px 10px 10px 10px;width:98%;text-align:center;">
+                                                    <textarea cols="50" rows="20" wrap="off" id="vnts_toml_txt"
+                                                        style="width:97%;padding-left:10px;padding-right:10px;border:1px solid #222;font-family:'Courier New', Courier, mono; font-size:11px;background:#475A5F;color:#FFFFFF;outline: none;"
+                                                        autocomplete="off" autocorrect="off" autocapitalize="off"
+                                                        spellcheck="false" readonly="readonly"></textarea>
+                                                </div>
+                                                <div
+                                                    style="margin-top:5px;padding-bottom:10px;width:100%;text-align:center;">
+                                                    <input class="button_gen" type="button"
+                                                        onclick="close_conf('vnts_toml');" value="返回主界面">
+                                                </div>
+                                            </div>
+
                                             <div id="vnts_cmd" class="contentM_qis"
                                                 style="box-shadow: 3px 3px 10px #000;margin-top: 70px;">
                                                 <div class="user_title">VNTS 状态参数 / 标准输出&nbsp;&nbsp;&nbsp;&nbsp;<a
@@ -2162,6 +2245,25 @@
                                                         onclick="close_conf('vnt_log');" value="返回主界面">
                                                     &nbsp;&nbsp;<input class="button_gen" type="button"
                                                         onclick="close_conf('vnt_log');clear_vntlog();" value="清空日志">
+                                                </div>
+                                            </div>
+
+                                            <div id="vnt_toml" class="contentM_qis"
+                                                style="box-shadow: 3px 3px 10px #000;margin-top: 70px;">
+                                                <div class="user_title">VNT 客户端配置 (client_config.toml)&nbsp;&nbsp;&nbsp;&nbsp;<a
+                                                        href="javascript:void(0)" onclick="close_conf('vnt_toml');"
+                                                        value="关闭"><span class="close"></span></a></div>
+                                                <div id="user_tr"
+                                                    style="margin: 10px 10px 10px 10px;width:98%;text-align:center;">
+                                                    <textarea cols="50" rows="20" wrap="off" id="vnt_toml_txt"
+                                                        style="width:97%;padding-left:10px;padding-right:10px;border:1px solid #222;font-family:'Courier New', Courier, mono; font-size:11px;background:#475A5F;color:#FFFFFF;outline: none;"
+                                                        autocomplete="off" autocorrect="off" autocapitalize="off"
+                                                        spellcheck="false" readonly="readonly"></textarea>
+                                                </div>
+                                                <div
+                                                    style="margin-top:5px;padding-bottom:10px;width:100%;text-align:center;">
+                                                    <input class="button_gen" type="button"
+                                                        onclick="close_conf('vnt_toml');" value="返回主界面">
                                                 </div>
                                             </div>
 
