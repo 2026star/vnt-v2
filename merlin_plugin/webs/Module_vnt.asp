@@ -148,7 +148,7 @@ var params_input = [
     "vnts2_token", "vnts2_tcp_bind", "vnts2_quic_bind", "vnts2_ws_bind",
     "vnts2_network", "vnts2_lease_duration", "vnts2_web_bind",
     "vnts2_username", "vnts2_password", "vnts2_cert", "vnts2_key",
-    "vnts2_whitelist", "vnts2_server_quic_bind", "vnts2_peer_servers", "vnts2_custom_nets"
+    "vnts2_whitelist", "vnts2_server_quic_bind", "vnts2_peer_servers", "vnts2_custom_nets", "vnts2_default_secret", "vnts2_network_secrets"
 ];
 var params_check = [
     "vnt_enable", "vnts_enable", "vnt_proxy_enable", "vnt_compressor",
@@ -1520,6 +1520,12 @@ function get_installog(s) {
                                             </td>
                                         </tr>
                                         <tr>
+                                            <th>默认网络秘钥 (default_secret)</th>
+                                            <td colspan="2">
+                                                <input type="text" class="input_ss_table" id="vnts2_default_secret" title="默认网络的连接秘钥（密码），留空则自动生成高强度秘钥。客户端需要通过此秘钥接入服务端默认网络" name="vnts2_default_secret" placeholder="留空自动生成" />
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(52)">IP 租约失效时长 (秒)</a></th>
                                             <td colspan="2">
                                                 <input type="text" class="input_ss_table" id="vnts2_lease_duration" title="IP 租约回收失效时长（秒），默认: 86400 (24小时)" name="vnts2_lease_duration" placeholder="默认: 86400 (24小时)" />
@@ -1539,6 +1545,18 @@ function get_installog(s) {
                                                         </div>
                                                     </label>
                                                 </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(61)">局域网段网关指向 (custom_nets)</a></th>
+                                            <td colspan="2">
+                                                <textarea type="text" class="input_ss_table" id="vnts2_custom_nets" title="自建服务端网关指向，例如: net1=192.168.50.0/24。一行一条，以换行或逗号分隔" name="vnts2_custom_nets" placeholder="选填，格式为: 网络编号=目标局域网段 (例如 net1=192.168.1.0/24)。一行输入一条，以换行或逗号分隔" style="height: 50px; font-family:'Courier New', Courier, mono; font-size: 11px;"></textarea>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>自定义网络秘钥 (network_secrets)</th>
+                                            <td colspan="2">
+                                                <textarea type="text" class="input_ss_table" id="vnts2_network_secrets" title="与上面的自定义网络配套的秘钥，必须一一对应。秘钥需符合高强度要求（>=24位且包含大写、小写、数字、符号至少三种）。格式: net1=MyStrongSecret2026!@#" name="vnts2_network_secrets" placeholder="选填，格式为: 网络名=高强度秘钥 (如 net1=StrongSecret-A1!xxx) 多行用回车或逗号分隔" style="height: 50px; font-family:'Courier New', Courier, mono; font-size: 11px;"></textarea>
                                             </td>
                                         </tr>
                                         <tr style="background-color: #576d73; color: #fff;">

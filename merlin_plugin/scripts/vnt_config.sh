@@ -441,7 +441,6 @@ write_server_config(){
     fi
 
     cat > /koolshare/vnt2/server_config.toml <<EOF
-network = "${vnts2_network:-10.26.0.0/24}"
 lease_duration = ${vnts2_lease_duration:-86400}
 persistence = ${persistence_val}
 white_list = [${whitelist_toml}]
@@ -471,11 +470,30 @@ EOF
     fi
 
     echo "[custom_nets]" >> /koolshare/vnt2/server_config.toml
+    echo "default = \"${vnts2_network:-10.26.0.0/24}\"" >> /koolshare/vnt2/server_config.toml
     if [ -n "$vnts2_custom_nets" ]; then
         for pair in $(echo "$vnts2_custom_nets" | sed 's/\\n/ /g' | sed 's/\\r/ /g' | tr '|' ' ' | tr '\n' ' '); do
             k="${pair%%=*}"
             v="${pair#*=}"
-            if [ -n "$k" ] && [ -n "$v" ]; then
+            if [ -n "$k" ] && [ -n "$v" ] && [ "$k" != "default" ]; then
+                echo "${k} = \"${v}\"" >> /koolshare/vnt2/server_config.toml
+            fi
+        done
+    fi
+
+    echo "[network_secrets]" >> /koolshare/vnt2/server_config.toml
+    dbus_secret=$(dbus get vnts2_default_secret)
+    if [ -z "$dbus_secret" ]; then
+        dbus_secret=$(awk 'BEGIN{srand(); printf "Vnts-Secret-A1!%08x%08x", rand()*100000000, rand()*100000000}')
+        dbus set vnts2_default_secret="$dbus_secret"
+    fi
+    echo "default = \"$dbus_secret\"" >> /koolshare/vnt2/server_config.toml
+
+    if [ -n "$vnts2_network_secrets" ]; then
+        for pair in $(echo "$vnts2_network_secrets" | sed 's/\\n/ /g' | sed 's/\\r/ /g' | tr '|' ' ' | tr '\n' ' '); do
+            k="${pair%%=*}"
+            v="${pair#*=}"
+            if [ -n "$k" ] && [ -n "$v" ] && [ "$k" != "default" ]; then
                 echo "${k} = \"${v}\"" >> /koolshare/vnt2/server_config.toml
             fi
         done
