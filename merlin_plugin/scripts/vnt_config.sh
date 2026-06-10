@@ -643,6 +643,18 @@ vnts_cmds(){
    [ ! -z "$cmdstart" ] && echo "vnts 启动命令  $cmdstart" >>/tmp/upload/vnts_cmd.log 2>&1
 }
 
+vnts_fingerprint(){
+  fp=$(grep -oP 'Fingerprint:\s*\K[a-f0-9]{64}' /tmp/vnts2.log 2>/dev/null | tail -n 1)
+  if [ -z "$fp" ]; then
+    fp=$(grep -i 'fingerprint' /tmp/vnts2.log 2>/dev/null | tail -n 1 | awk -F'Fingerprint:' '{print $2}' | tr -d ' ' | tr -d '\r' | tr -d '\n')
+  fi
+  if [ -n "$fp" ]; then
+    echo "$fp" > /tmp/upload/vnts_fingerprint.log
+  else
+    echo "未找到Fingerprint" > /tmp/upload/vnts_fingerprint.log
+  fi
+}
+
 case $ACTION in
 start)
 
@@ -703,6 +715,10 @@ vnt_cli)
     ;;
 vnts)
         vnts_cmds
+	http_response "$1"
+    ;;
+vnts_fingerprint)
+        vnts_fingerprint
 	http_response "$1"
     ;;
 clearvntlog)
@@ -796,6 +812,10 @@ vnt_cli)
     ;;
 vnts)
         vnts_cmds
+	http_response "$1"
+    ;;
+vnts_fingerprint)
+        vnts_fingerprint
 	http_response "$1"
     ;;
 clean_log)

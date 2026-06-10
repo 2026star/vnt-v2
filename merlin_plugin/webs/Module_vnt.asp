@@ -599,6 +599,34 @@ function get_vnts_cmd() {
 		}
 	});
 }
+function get_vnts_fingerprint() {
+	var uid = parseInt(Math.random() * 100000000);
+	var postData = {"id": uid, "method": "vnt_config.sh", "params": ["vnts_fingerprint"], "fields": db_vnt };
+	$.ajax({
+		url: "/_api/",
+		cache: false,
+		type: "POST",
+		dataType: "json",
+		data: JSON.stringify(postData),
+		success: function(response) {
+			if (response.result == uid){
+				$.ajax({
+					url: '/_temp/vnts_fingerprint.log',
+					type: 'GET',
+					cache:false,
+					dataType: 'text',
+					success: function(res) {
+						if (!res || res.length == 0 || res.trim() == "未找到Fingerprint" || res.trim() == ""){
+							alert("未在日志中找到 Fingerprint，服务端可能未启动或日志已滚动。"); 
+						}else{ 
+							prompt("服务端 Fingerprint:", res.trim()); 
+						}
+					}
+				});
+			}
+		}
+	});
+}
 function open_conf(open_conf) {
 	if (open_conf == "vnt_info") {
 		get_vnt_info();
@@ -1499,6 +1527,7 @@ function get_installog(s) {
                                             <td>
 											    
 												<a type="button" class="info_btn" style="cursor:pointer" href="javascript:void(0);" onclick="open_conf('vnts_cmd');" >状态信息</a>&nbsp;
+                                                <a type="button" class="info_btn" style="cursor:pointer" href="javascript:void(0);" onclick="get_vnts_fingerprint();" >获取指纹(Fingerprint)</a>&nbsp;
                                                 <a type="button" class="info_btn" style="cursor:pointer" href="javascript:void(0);" onclick="open_conf('vnts_log');" >查看日志</a>
                                             
                                             </td>
@@ -1635,15 +1664,6 @@ function get_installog(s) {
                                             <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(60)">互联服务器节点列表 (peer_servers)</a></th>
                                             <td colspan="2">
                                                 <textarea type="text" class="input_ss_table" id="vnts2_peer_servers" title="多服务器级联互联地址列表，例如: 1.2.3.4:29873" name="vnts2_peer_servers" placeholder="例如: 1.2.3.4:29873。多个地址以英文逗号 ','、'|' 或换行分隔" style="height: 50px; font-family:'Courier New', Courier, mono; font-size: 11px;"></textarea>
-                                            </td>
-                                        </tr>
-                                        <tr style="background-color: #576d73; color: #fff;">
-                                            <td colspan="3" style="font-weight: bold; padding: 6px 10px;">局域网段网关指向 (custom_nets)</td>
-                                        </tr>
-                                        <tr>
-                                            <th><a class="hintstyle" href="javascript:void(0);" onclick="openssHint(61)">局域网段网关指向 (custom_nets)</a></th>
-                                            <td colspan="2">
-                                                <textarea type="text" class="input_ss_table" id="vnts2_custom_nets" title="自建服务端网关指向，例如: net1=192.168.50.0/24。一行一条，以换行或逗号分隔" name="vnts2_custom_nets" placeholder="选填，格式为: 网络编号=目标局域网段 (例如 net1=192.168.1.0/24)。一行输入一条，以换行或逗号分隔" style="height: 50px; font-family:'Courier New', Courier, mono; font-size: 11px;"></textarea>
                                             </td>
                                         </tr>
                                     </table>
