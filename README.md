@@ -1,6 +1,7 @@
 # VNT2 & VNTS2 梅林路由器整合项目工作区
 
 本仓库是一个 Monorepo 工作区，包含了 VNT2 客户端、VNTS2 服务端以及配套的梅林路由器插件。
+https://github.com/vnt-dev/vnts/releases/tag/2.0.2
 
 ## 目录结构
 
