@@ -347,7 +347,7 @@ impl ControlService {
             );
         };
 
-        if provided_secret != network.secret {
+        if provided_secret != key_sign(&network.secret) {
             bail!(
                 "invalid network secret for network_code '{}'",
                 reg_req.network_code
@@ -843,4 +843,14 @@ pub struct NetworkInfoVO {
     pub can_delete: bool,
     pub all_count: u32,
     pub online_count: u32,
+}
+
+fn key_sign(s: &str) -> String {
+    use sha2::{Digest, Sha256};
+    let mut hasher = Sha256::new();
+    hasher.update(b"KEY-BEGIN");
+    hasher.update(s.as_bytes());
+    hasher.update(b"KEY-END");
+    let digest = hasher.finalize();
+    hex::encode(&digest[..16])
 }

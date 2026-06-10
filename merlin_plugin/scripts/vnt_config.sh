@@ -558,9 +558,6 @@ fun_start_vnt(){
 
 fun_start_vnts(){
      fun_nat_start
-     if [ "$vnts2_persistence" = "0" ]; then
-         rm -rf /koolshare/vnt2/vnts.db
-     fi
      [ -x "${vnts_path}" ] || chmod 755 ${vnts_path}
      
      vnts_ver=`$vnts_path --version 2>/dev/null | head -n 1 | awk '{print $2}'`
