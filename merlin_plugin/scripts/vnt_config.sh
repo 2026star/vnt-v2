@@ -429,8 +429,10 @@ write_client_config(){
         no_tun_val="true"
     fi
 
+    vnt_token_clean=$(echo "$vnt_token" | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
     cat > /koolshare/vnt2/client_config.toml <<EOF
-network_code = "${vnt_token}"
+network_code = "${vnt_token_clean}"
 server = [${servers_toml}]
 no_punch = ${no_punch_val}
 rtx = ${rtx_val}
