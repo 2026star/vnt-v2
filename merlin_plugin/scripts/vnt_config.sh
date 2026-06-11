@@ -47,7 +47,6 @@ vnt_mtu=`dbus get vnt_mtu`
 vnt_key=`dbus get vnt_key`
 vnt_path=`dbus get vnt_path`
 vnts_path=`dbus get vnts_path`
-vnt_server_token=$(dbus get vnt_server_token)
 user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36'
 lanaddr=$(ifconfig br0|grep -Eo "inet addr.+"|awk -F ":| " '{print $3}' 2>/dev/null)
 if [ -z "$vnt_path" ] || [ -n "$(echo $vnt_path | grep -E '/vnt-cli$|/vnt_cli$')" ]; then
@@ -455,10 +454,6 @@ EOF
     if [ -n "$vnt_key" ]; then
         vnt_key_clean=$(echo "$vnt_key" | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
         echo "password = \"${vnt_key_clean}\"" >> /koolshare/vnt2/client_config.toml
-    fi
-    if [ -n "$vnt_server_token" ]; then
-        vnt_server_token_clean=$(echo "$vnt_server_token" | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-        echo "server_token = \"${vnt_server_token_clean}\"" >> /koolshare/vnt2/client_config.toml
     fi
     if [ -n "$vnt_desvice_id" ]; then
         echo "device_id = \"${vnt_desvice_id}\"" >> /koolshare/vnt2/client_config.toml
