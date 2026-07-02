@@ -73,7 +73,7 @@
             /*margin-left: -100px;*/
             top: 100px;
             width: 755px;
-            return height: auto;
+            height: auto;
             box-shadow: 3px 3px 10px #000;
             background: rgba(0, 0, 0, 0.85);
             display: none;
@@ -1106,7 +1106,7 @@
                 statusmenu = "设定服务器的子网掩码";
                 _caption = "服务器网络掩码";
             } else if (itemNum == 35) {
-                statusmenu = "这里可以上传以<font color='#F46'>.tar.gz</font>结尾的程序压缩包会自动解压<br>也可以上传<font color='#F46'>vnt-cli</font> 或 <font color='#F46'>vnts</font> 二进制程序文件<br>已有的程序将会被替换<br>客户端程序文件名请包含<font color='#F46'>vnt-cli</font>  服务端文件名请包含<font color='#F46'>vnts</font><br>上传二进制文件的话文件名必须为<font color='#F46'>vnt-cli</font>  服务端名必须为<font color='#F46'>vnts</font>";
+                statusmenu = "这里可以上传以<font color='#F46'>.tar.gz</font>结尾的程序压缩包会自动解压<br>也可以上传 <font color='#F46'>vnt2_cli</font> 或 <font color='#F46'>vnts2</font> 二进制程序文件<br>已有的程序将会被自动替换<br>客户端程序文件名请包含 <font color='#F46'>vnt2_cli</font>（兼容 vnt-cli），服务端文件名请包含 <font color='#F46'>vnts2</font>（兼容 vnts）";
                 _caption = "上传程序选择文件";
             } else if (itemNum == 36) {
                 statusmenu = "启用服务端的WEB界面，图形化显示所有客户端信息";
@@ -1183,19 +1183,6 @@
             }
 
             return overlib(statusmenu, OFFSETX, -160, LEFT, STICKY, WIDTH, 'width', CAPTION, _caption, CLOSETITLE, '');
-            var tag_name = document.getElementsByTagName('a');
-            for (var i = 0; i < tag_name.length; i++)
-                tag_name[i].onmouseout = nd;
-            if (helpcontent == [] || helpcontent == "" || hint_array_id > helpcontent.length)
-                return overlib('<#defaultHint#>', HAUTO, VAUTO);
-            else if (hint_array_id == 0 && hint_show_id > 21 && hint_show_id < 24)
-                return overlib(helpcontent[hint_array_id][hint_show_id], FIXX, 270, FIXY, 30);
-            else {
-                if (hint_show_id > helpcontent[hint_array_id].length)
-                    return overlib('<#defaultHint#>', HAUTO, VAUTO);
-                else
-                    return overlib(helpcontent[hint_array_id][hint_show_id], HAUTO, VAUTO);
-            }
         }
         function upload_bin() {
             var filename = $("#file").val();
@@ -1206,6 +1193,9 @@
             filename = filename.split('\\');
             filename = filename[filename.length - 1];
             document.getElementById('file_info').style.display = "none";
+            $("#loadingicon").show();
+            $("#upload_btn").prop("disabled", true).val("上传中...");
+
             var formData = new FormData();
             formData.append(filename, $('#file')[0].files[0]);
 
@@ -1218,6 +1208,7 @@
                 contentType: false,
                 success: function (response) {
                     // 上传成功后的处理
+                    $("#upload_btn").val("安装中...");
                     var vntbin = {
                         "vnt_name": filename,
                     };
@@ -1226,6 +1217,8 @@
                 },
                 error: function (xhr, status, error) {
                     // 上传失败后的处理
+                    $("#loadingicon").hide();
+                    $("#upload_btn").prop("disabled", false).val("上传");
                     alert("上传失败: " + error);
                 }
             });
@@ -1243,7 +1236,15 @@
                     if (response.result == id) {
                         document.getElementById('file_info').style.display = "block";
                         get_installog(1);
+                    } else {
+                        $("#loadingicon").hide();
+                        $("#upload_btn").prop("disabled", false).val("上传");
                     }
+                },
+                error: function (xhr, status, error) {
+                    $("#loadingicon").hide();
+                    $("#upload_btn").prop("disabled", false).val("上传");
+                    alert("触发安装请求失败: " + error);
                 }
             });
         }
@@ -1256,9 +1257,11 @@
                 dataType: 'text',
                 cache: false,
                 success: function (response) {
-                    if (response.search("LBL8603") != -1) {
+                    if (response.search("LBL8603") != -1 || response.search("end ===") != -1) {
                         retArea.value = response.myReplace("LBL8603", " ");
                         retArea.scrollTop = retArea.scrollHeight;
+                        $("#loadingicon").hide();
+                        $("#upload_btn").prop("disabled", false).val("上传");
                         if (s) {
                             setTimeout("window.location.reload()", 3000);
                         }
@@ -1270,7 +1273,8 @@
                         noChange = 0;
                     }
                     if (noChange > 4000) {
-                        //tabSelect("app1");
+                        $("#loadingicon").hide();
+                        $("#upload_btn").prop("disabled", false).val("上传");
                         return false;
                     } else {
                         setTimeout("get_installog(1);", 1000);
@@ -1280,6 +1284,8 @@
                     _responseLen = response.length;
                 },
                 error: function (xhr, status, error) {
+                    $("#loadingicon").hide();
+                    $("#upload_btn").prop("disabled", false).val("上传");
                     if (s) {
                         E("soft_log_area").value = "没有找到上传记录";
                     }
@@ -1405,7 +1411,7 @@
                                                     </tr>
                                                     <tr id="vnt_status">
                                                         <th width="20%"><a class="hintstyle" href="javascript:void(0);"
-                                                                onclick="openssHint(4)">运行状态</th>
+                                                                onclick="openssHint(4)">运行状态</a></th>
                                                         <td><span id="status1">获取中...</span>
                                                         </td>
                                                     </tr>
@@ -1436,7 +1442,7 @@
 
                                                     <tr>
                                                         <th width="20%"><a class="hintstyle" href="javascript:void(0);"
-                                                                onclick="openssHint(30)">设备信息和日志</th>
+                                                                onclick="openssHint(30)">设备信息和日志</a></th>
                                                         <td>
                                                             <a type="button" class="info_btn" style="cursor:pointer"
                                                                 href="javascript:void(0);"
@@ -1827,7 +1833,7 @@
                                                     </tr>
                                                     <tr id="vnts_status">
                                                         <th width="20%"><a class="hintstyle" href="javascript:void(0);"
-                                                                onclick="openssHint(4)">运行状态</th>
+                                                                onclick="openssHint(4)">运行状态</a></th>
                                                         <td><span id="status2">获取中...</span>
                                                         </td>
                                                     </tr>
@@ -1858,7 +1864,7 @@
 
                                                     <tr>
                                                         <th width="20%"><a class="hintstyle" href="javascript:void(0);"
-                                                                onclick="openssHint(30)">程序运行日志</th>
+                                                                onclick="openssHint(30)">程序运行日志</a></th>
                                                         <td>
 
                                                             <a type="button" class="info_btn" style="cursor:pointer"
@@ -2118,7 +2124,7 @@
                                                         <td>
                                                             <input sclang type="button" id="upload_btn"
                                                                 class="button_gen" onclick="upload_bin();" value="上传" />
-                                                            <input style="color:#FFCC00;*color:#000;width: 200px;"
+                                                            <input style="color:#FFCC00;width: 200px;"
                                                                 id="file" type="file" name="file" />
                                                             <img id="loadingicon"
                                                                 style="margin-left:5px;margin-right:5px;display:none;"
@@ -2221,7 +2227,7 @@
                                                 </div>
                                                 <div
                                                     style="margin-top:5px;padding-bottom:10px;width:100%;text-align:center;">
-                                                    <input id="edit_node2" class="button_gen" type="button"
+                                                    <input id="edit_node2b" class="button_gen" type="button"
                                                         onclick="close_conf('vnts_fingerprint');" value="返回主界面">
                                                 </div>
                                             </div>
@@ -2361,8 +2367,6 @@
                                                 </div>
                                             </div>
 
-
-                                            </div>
                                         </td>
                                     </tr>
                                 </table>
