@@ -174,12 +174,17 @@
             "vnt_first_latency_enable", "vnt_fec", "vnt_allow_mapping", "vnt_no_tun",
             "vnts2_persistence"
         ];
+        String.prototype.myReplace = function(f, e){
+            var reg = new RegExp(f, "g");
+            return this.replace(reg, e);
+        }
+        var vnt_status_started = false;
         function initial() {
             show_menu(menu_hook);
-            get_vnt_status();
             get_dbus_data();
         }
         var get_dbus_retry = 0;
+        var noChange = 0;
         function get_dbus_data() {
             var loadingEl = document.getElementById('vnt_loading_tip');
             if (loadingEl) loadingEl.style.display = 'block';
@@ -187,7 +192,8 @@
                 type: "GET",
                 url: "/_api/vnt",
                 dataType: "json",
-                timeout: 3000,
+                cache: false,
+                timeout: 10000,
                 success: function (data) {
                     if (data && data.result && data.result[0] && Object.keys(data.result[0]).length > 0) {
                         db_vnt = data.result[0];
@@ -197,11 +203,11 @@
                         update_visibility();
                         toggle_func();
                         buildswitch();
-                        get_installog();
+                        start_vnt_status_loop();
                     } else {
-                        if (get_dbus_retry < 3) {
+                        if (get_dbus_retry < 8) {
                             get_dbus_retry++;
-                            setTimeout(get_dbus_data, 1000);
+                            setTimeout(get_dbus_data, 1500);
                         } else {
                             db_vnt = {};
                             if (loadingEl) loadingEl.style.display = 'none';
@@ -209,14 +215,14 @@
                             update_visibility();
                             toggle_func();
                             buildswitch();
-                            get_installog();
+                            start_vnt_status_loop();
                         }
                     }
                 },
                 error: function () {
-                    if (get_dbus_retry < 3) {
+                    if (get_dbus_retry < 8) {
                         get_dbus_retry++;
-                        setTimeout(get_dbus_data, 1000);
+                        setTimeout(get_dbus_data, 1500);
                     } else {
                         db_vnt = {};
                         if (loadingEl) loadingEl.style.display = 'none';
@@ -224,7 +230,7 @@
                         update_visibility();
                         toggle_func();
                         buildswitch();
-                        get_installog();
+                        start_vnt_status_loop();
                     }
                 }
             });
@@ -274,6 +280,12 @@
             }
         }
 
+
+        function start_vnt_status_loop() {
+            if (vnt_status_started) return;
+            vnt_status_started = true;
+            get_vnt_status();
+        }
 
         function get_vnt_status() {
             var postData = {
