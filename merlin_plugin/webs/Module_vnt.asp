@@ -185,53 +185,72 @@
         }
         var get_dbus_retry = 0;
         var noChange = 0;
+        function parse_dbus_response(data) {
+            if (data && data.result && data.result[0]) {
+                return data.result[0];
+            }
+            return {};
+        }
+        function fetch_dbus_snapshot(apiPath, callback) {
+            $.ajax({
+                type: "GET",
+                url: apiPath,
+                dataType: "json",
+                cache: false,
+                timeout: 8000,
+                success: function (data) {
+                    callback(parse_dbus_response(data));
+                },
+                error: function () {
+                    callback({});
+                }
+            });
+        }
+
+        function fetch_dbus_paths(paths, index, merged, callback) {
+            if (index >= paths.length) {
+                callback(merged);
+                return;
+            }
+            fetch_dbus_snapshot(paths[index], function (snapshot) {
+                $.extend(merged, snapshot);
+                fetch_dbus_paths(paths, index + 1, merged, callback);
+            });
+        }
+
+        function get_vnt_dbus_snapshot(callback) {
+            fetch_dbus_paths(["/_api/vnt_", "/_api/vnts_", "/_api/vnts2_"], 0, {}, function (snapshot) {
+                if (Object.keys(snapshot).length > 0) {
+                    callback(snapshot);
+                } else {
+                    fetch_dbus_snapshot("/_api/vnt", callback);
+                }
+            });
+        }
+
+        function render_dbus_data(snapshot) {
+            var loadingEl = document.getElementById('vnt_loading_tip');
+            db_vnt = snapshot;
+            get_dbus_retry = 0;
+            if (loadingEl) loadingEl.style.display = 'none';
+            conf2obj();
+            update_visibility();
+            toggle_func();
+            buildswitch();
+            start_vnt_status_loop();
+        }
+
         function get_dbus_data() {
             var loadingEl = document.getElementById('vnt_loading_tip');
             if (loadingEl) loadingEl.style.display = 'block';
-            $.ajax({
-                type: "GET",
-                url: "/_api/vnt",
-                dataType: "json",
-                cache: false,
-                timeout: 10000,
-                success: function (data) {
-                    if (data && data.result && data.result[0] && Object.keys(data.result[0]).length > 0) {
-                        db_vnt = data.result[0];
-                        get_dbus_retry = 0;
-                        if (loadingEl) loadingEl.style.display = 'none';
-                        conf2obj();
-                        update_visibility();
-                        toggle_func();
-                        buildswitch();
-                        start_vnt_status_loop();
-                    } else {
-                        if (get_dbus_retry < 8) {
-                            get_dbus_retry++;
-                            setTimeout(get_dbus_data, 1500);
-                        } else {
-                            db_vnt = {};
-                            if (loadingEl) loadingEl.style.display = 'none';
-                            conf2obj();
-                            update_visibility();
-                            toggle_func();
-                            buildswitch();
-                            start_vnt_status_loop();
-                        }
-                    }
-                },
-                error: function () {
-                    if (get_dbus_retry < 8) {
-                        get_dbus_retry++;
-                        setTimeout(get_dbus_data, 1500);
-                    } else {
-                        db_vnt = {};
-                        if (loadingEl) loadingEl.style.display = 'none';
-                        conf2obj();
-                        update_visibility();
-                        toggle_func();
-                        buildswitch();
-                        start_vnt_status_loop();
-                    }
+            get_vnt_dbus_snapshot(function (snapshot) {
+                if (Object.keys(snapshot).length > 0) {
+                    render_dbus_data(snapshot);
+                } else if (get_dbus_retry < 8) {
+                    get_dbus_retry++;
+                    setTimeout(get_dbus_data, 1500);
+                } else {
+                    render_dbus_data({});
                 }
             });
         }
