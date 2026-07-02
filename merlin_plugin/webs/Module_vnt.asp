@@ -180,11 +180,25 @@
         }
         var vnt_status_started = false;
         function initial() {
-            show_menu(menu_hook);
             get_dbus_data();
+            init_menu();
         }
         var get_dbus_retry = 0;
         var noChange = 0;
+        function init_menu(retry) {
+            retry = retry || 0;
+            try {
+                if (typeof show_menu == "function") {
+                    show_menu(menu_hook);
+                } else if (retry < 5) {
+                    setTimeout(function () { init_menu(retry + 1); }, 500);
+                }
+            } catch (e) {
+                if (retry < 5) {
+                    setTimeout(function () { init_menu(retry + 1); }, 500);
+                }
+            }
+        }
         function parse_dbus_response(data) {
             if (data && data.result && data.result[0]) {
                 return data.result[0];
